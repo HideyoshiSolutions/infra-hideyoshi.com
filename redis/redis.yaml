@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    namespace: portfolio 
+    name: redis-deployment
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: redis
+    template:
+        metadata:
+            labels:
+                app: redis
+        spec:
+            limits:
+            containers:
+                - name: redis
+                  image: bitnami/redis
+                  imagePullPolicy: "IfNotPresent"
+                  ports:
+                      - containerPort: 6379
+                  env:
+                      - name: REDIS_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: redis-secret
+                                key: redis-password
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    namespace: portfolio 
+    name: redis-service
+spec:
+    selector:
+        app: redis
+    ports:
+        - port: 6379
+    type: ClusterIP

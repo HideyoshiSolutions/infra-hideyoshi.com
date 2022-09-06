@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    namespace: portfolio 
+    name: frontend-deployment
+    labels:
+        app: frontend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: frontend
+    template:
+        metadata:
+            labels:
+                app: frontend
+        spec:
+            containers:
+                - name: frontend
+                  image: yoshiunfriendly/frontend-hideyoshi.com:latest
+                  limits:
+                  ports:
+                      - containerPort: 5000
+                  env:
+                      - name: PORT
+                        value: "5000"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    namespace: portfolio 
+    name: frontend-service
+spec:
+    selector:
+        app: frontend
+    ports:
+        - port: 5000
+          protocol: TCP
+          targetPort: 5000
+    type: ClusterIP

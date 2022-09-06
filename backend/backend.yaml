@@ -1,9 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: backend
-    labels:
-        app: backend
+    namespace: portfolio 
+    name: backend-deployment
 spec:
     replicas: 1
     selector:
@@ -14,26 +13,72 @@ spec:
             labels:
                 app: backend
         spec:
+            limits:
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
                   ports:
                       - containerPort: 8070
                   env:
-                      - name: FRONT_END_PATH
+                      - name: FRONTEND_PATH
                         valueFrom:
                             configMapKeyRef:
                                 name: frontend-config
                                 key: frontend-url
 
-                      - name: FRONT_END_CONNECTION_TYPE
+                      - name: FRONTEND_CONNECTION_TYPE
                         valueFrom:
                             configMapKeyRef:
                                 name: frontend-config
                                 key: frontend-type
 
+                      - name: TOKEN_SECRET
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: tokenSecret
+
+                      - name: ACCESS_TOKEN_DURATION
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: accessTokenDuration
+
+                      - name: REFRESH_TOKEN_DURATION
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: refreshTokenDuration
+
+                      - name: DEFAULT_USER_FULLNAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: defaultUserFullname
+
+                      - name: DEFAULT_USER_EMAIL
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: defaultUserEmail
+
+                      - name: DEFAULT_USER_USERNAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: defaultUserUsername
+
+                      - name: DEFAULT_USER_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: defaultUserPassword
+
                       - name: PORT
-                        value: "8070"
+                        valueFrom:
+                            configMapKeyRef:
+                                name: backend-config
+                                key: backend-port
 
                       - name: POSTGRES_URL
                         valueFrom:
@@ -50,7 +95,7 @@ spec:
                       - name: DATABASE_URL
                         value: "postgresql://$(POSTGRES_URL):5432/$(POSTGRES_DB)"
 
-                      - name: DATABASE_USER
+                      - name: DATABASE_USERNAME
                         valueFrom:
                             secretKeyRef:
                                 name: postgres-secret
@@ -62,15 +107,35 @@ spec:
                                 name: postgres-secret
                                 key: POSTGRES_PASSWORD
 
+                      - name: REDIS_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: redis-config
+                                key: redis-url
+
+                      - name: REDIS_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: redis-config
+                                key: redis-port
+
+                      - name: REDIS_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: redis-secret
+                                key: redis-password
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
+    namespace: portfolio 
     name: backend-service
 spec:
-    ports:
-        - protocol: TCP
-          port: 8070
-          targetPort: 8070
     selector:
         app: backend
+    ports:
+        - port: 8070
+          protocol: TCP
+          targetPort: 8070
+    type: ClusterIP
