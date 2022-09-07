@@ -17,6 +17,7 @@ spec:
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
+                  imagePullPolicy: "Always"
                   ports:
                       - containerPort: 8070
                   env:
