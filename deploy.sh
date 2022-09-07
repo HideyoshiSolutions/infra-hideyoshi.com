@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function check_k3s_installation() {
+    if [ ! -f /usr/local/bin/k3s ]; then
+        export INSTALL_K3S_EXEC="--no-deploy traefik";
+        curl -sfL https://get.k3s.io | sh -s -;
+        sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
+    fi
+}
+
 function start_cert_manager {
 
     kubectl apply -f ./cert-manager/cert-manager.yaml;
@@ -72,9 +80,7 @@ function main {
 
     elif [[ $1 == "--staging" || $1 == "-s" ]]; then
 
-        export INSTALL_K3S_EXEC="--no-deploy traefik";
-        curl -sfL https://get.k3s.io | sh -s -;
-        sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
+        check_k3s_installation
 
         kubectl apply -f ./nginx-ingress/nginx-ingress.yaml;
         kubectl wait --namespace ingress-nginx \
@@ -89,9 +95,7 @@ function main {
 
     else
 
-        export INSTALL_K3S_EXEC="--no-deploy traefik";
-        curl -sfL https://get.k3s.io | sh -s -;
-        sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
+        check_k3s_installation
 
         kubectl apply -f ./nginx-ingress/nginx-ingress.yaml;
         kubectl wait --namespace ingress-nginx \
