@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    namespace: portfolio 
+    namespace: portfolio
     name: frontend-config
 data:
-    frontend-url: frontend-service
+    frontend_url: frontend-service
     frontend-type: unsecure

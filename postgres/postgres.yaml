@@ -13,7 +13,6 @@ spec:
             labels:
                 app: postgres
         spec:
-            limits:
             containers:
                 - name: postgres
                   image: postgres
