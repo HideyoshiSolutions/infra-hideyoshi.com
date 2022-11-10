@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    namespace: portfolio 
+    namespace: portfolio
     name: postgres-config
 data:
-    postgres-url: postgres-service
+    postgres_url: postgres-service

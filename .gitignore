@@ -1,0 +1,6 @@
+
+backend/backend-secret.yaml
+
+postgres/postgres-secret.yaml
+
+redis/redis-secret.yaml
