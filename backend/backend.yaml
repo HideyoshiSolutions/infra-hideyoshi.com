@@ -126,7 +126,7 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: postgres-secret
-                                key: postgres_db
+                                key: POSTGRES_DB
 
                       - name: DATABASE_URL
                         value: "postgresql://$(POSTGRES_URL):5432/$(POSTGRES_DB)"
@@ -135,13 +135,13 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: postgres-secret
-                                key: postgres_user
+                                key: POSTGRES_USER
 
                       - name: DATABASE_PASSWORD
                         valueFrom:
                             secretKeyRef:
                                 name: postgres-secret
-                                key: postgres_password
+                                key: POSTGRES_PASSWORD
 
                       - name: REDIS_URL
                         valueFrom:
