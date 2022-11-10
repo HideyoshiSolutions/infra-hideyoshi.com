@@ -66,7 +66,7 @@ function main {
             minikube kubectl -- $@
         }
 
-        minikube start --driver docker;
+        minikube start --driver kvm2;
         minikube addons enable ingress;
         
         start_cert_manager

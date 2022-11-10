@@ -13,7 +13,6 @@ spec:
             labels:
                 app: redis
         spec:
-            limits:
             containers:
                 - name: redis
                   image: bitnami/redis
