@@ -30,9 +30,9 @@ jobs:
 
             - name: Inserts Prod Enviromental Variables
               run: |
-                envsubst < backend/backend-secret.template.yaml > backend/backend-secret.yaml;
-                envsubst < postgres/postgres-secret.template.yaml > postgres/postgres-secret.yaml;
-                envsubst < redis/redis-secret.template.yaml > redis/redis-secret.yaml;
+                envsubst < $GITHUB_WORKSPACE/backend/backend-secret.template.yaml > $GITHUB_WORKSPACE/backend/backend-secret.yaml;
+                envsubst < $GITHUB_WORKSPACE/postgres/postgres-secret.template.yaml > $GITHUB_WORKSPACE/postgres/postgres-secret.yaml;
+                envsubst < $GITHUB_WORKSPACE/redis/redis-secret.template.yaml > $GITHUB_WORKSPACE/redis/redis-secret.yaml;
 
             - name: copy file via ssh
               uses: appleboy/scp-action@master
