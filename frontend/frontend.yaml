@@ -19,7 +19,6 @@ spec:
                 - name: frontend
                   image: yoshiunfriendly/frontend-hideyoshi.com:latest
                   imagePullPolicy: "Always"
-                  limits:
                   ports:
                       - containerPort: 5000
                   env:
