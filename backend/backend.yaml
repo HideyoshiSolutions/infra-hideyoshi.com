@@ -22,15 +22,9 @@ spec:
                   env:
                       - name: FRONTEND_PATH
                         valueFrom:
-                            configMapKeyRef:
-                                name: frontend-config
-                                key: frontend_url
-
-                      - name: FRONTEND_CONNECTION_TYPE
-                        valueFrom:
-                            configMapKeyRef:
-                                name: frontend-config
-                                key: frontend-type
+                            secretKeyRef:
+                                name: frontend-secret
+                                key: frontend_path
 
                       - name: TOKEN_SECRET
                         valueFrom:

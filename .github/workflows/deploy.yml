@@ -2,6 +2,7 @@ name: remote ssh command
 on: [push]
 
 env:
+    FRONTEND_PATH: ${{ secrets.FRONTEND_PATH }}
     TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
     ACCESS_TOKEN_DURATION: ${{ secrets.ACCESS_TOKEN_DURATION }}
     REFRESH_TOKEN_DURATION: ${{ secrets.REFRESH_TOKEN_DURATION }}
@@ -30,9 +31,11 @@ jobs:
 
             - name: Inserts Prod Enviromental Variables
               run: |
+                envsubst < $GITHUB_WORKSPACE/frontend/frontend-secret.template.yaml > $GITHUB_WORKSPACE/frontend/frontend-secret.yaml;
                 envsubst < $GITHUB_WORKSPACE/backend/backend-secret.template.yaml > $GITHUB_WORKSPACE/backend/backend-secret.yaml;
                 envsubst < $GITHUB_WORKSPACE/postgres/postgres-secret.template.yaml > $GITHUB_WORKSPACE/postgres/postgres-secret.yaml;
                 envsubst < $GITHUB_WORKSPACE/redis/redis-secret.template.yaml > $GITHUB_WORKSPACE/redis/redis-secret.yaml;
+                rm $GITHUB_WORKSPACE/frontend/frontend-secret.template.yaml; 
                 rm $GITHUB_WORKSPACE/redis/redis-secret.template.yaml; 
                 rm $GITHUB_WORKSPACE/postgres/postgres-secret.template.yaml; 
                 rm $GITHUB_WORKSPACE/backend/backend-secret.template.yaml;
