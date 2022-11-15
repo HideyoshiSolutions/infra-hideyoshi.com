@@ -3,7 +3,7 @@
 function check_k3s_installation() {
     if [ ! -f /usr/local/bin/k3s ]; then
         export INSTALL_K3S_EXEC="--no-deploy traefik";
-        curl -sfL https://get.k3s.io | sh -s -;
+        curl -sfL https://get.k3s.io | sh - ;
         sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
     fi
 }

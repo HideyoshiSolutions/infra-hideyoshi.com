@@ -5,4 +5,3 @@ metadata:
     name: frontend-config
 data:
     frontend_url: frontend-service
-    frontend-type: unsecure
