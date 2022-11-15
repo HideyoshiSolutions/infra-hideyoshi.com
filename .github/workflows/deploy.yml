@@ -1,5 +1,9 @@
 name: remote ssh command
-on: [push]
+
+on:
+    push:
+        branches:
+            - "main"
 
 env:
     FRONTEND_PATH: ${{ secrets.FRONTEND_PATH }}
@@ -31,33 +35,32 @@ jobs:
 
             - name: Inserts Prod Enviromental Variables
               run: |
-                envsubst < $GITHUB_WORKSPACE/frontend/frontend-secret.template.yaml > $GITHUB_WORKSPACE/frontend/frontend-secret.yaml;
-                envsubst < $GITHUB_WORKSPACE/backend/backend-secret.template.yaml > $GITHUB_WORKSPACE/backend/backend-secret.yaml;
-                envsubst < $GITHUB_WORKSPACE/postgres/postgres-secret.template.yaml > $GITHUB_WORKSPACE/postgres/postgres-secret.yaml;
-                envsubst < $GITHUB_WORKSPACE/redis/redis-secret.template.yaml > $GITHUB_WORKSPACE/redis/redis-secret.yaml;
-                rm $GITHUB_WORKSPACE/frontend/frontend-secret.template.yaml; 
-                rm $GITHUB_WORKSPACE/redis/redis-secret.template.yaml; 
-                rm $GITHUB_WORKSPACE/postgres/postgres-secret.template.yaml; 
-                rm $GITHUB_WORKSPACE/backend/backend-secret.template.yaml;
+                  envsubst < $GITHUB_WORKSPACE/frontend/frontend-secret.template.yaml > $GITHUB_WORKSPACE/frontend/frontend-secret.yaml;
+                  envsubst < $GITHUB_WORKSPACE/backend/backend-secret.template.yaml > $GITHUB_WORKSPACE/backend/backend-secret.yaml;
+                  envsubst < $GITHUB_WORKSPACE/postgres/postgres-secret.template.yaml > $GITHUB_WORKSPACE/postgres/postgres-secret.yaml;
+                  envsubst < $GITHUB_WORKSPACE/redis/redis-secret.template.yaml > $GITHUB_WORKSPACE/redis/redis-secret.yaml;
+                  rm $GITHUB_WORKSPACE/frontend/frontend-secret.template.yaml; 
+                  rm $GITHUB_WORKSPACE/redis/redis-secret.template.yaml; 
+                  rm $GITHUB_WORKSPACE/postgres/postgres-secret.template.yaml; 
+                  rm $GITHUB_WORKSPACE/backend/backend-secret.template.yaml;
 
             - name: copy file via ssh
               uses: appleboy/scp-action@master
               with:
-                host: ${{ secrets.HOST }}
-                username: ${{ secrets.USERNAME }}
-                key: ${{ secrets.SSH_KEY }}
-                port: ${{ secrets.PORT }}
-                source: "."
-                target: "infra-hideyoshi.com"
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.SSH_KEY }}
+                  port: ${{ secrets.PORT }}
+                  source: "."
+                  target: "infra-hideyoshi.com"
 
             - name: executing remote ssh commands using password
               uses: appleboy/ssh-action@master
               with:
-                host: ${{ secrets.HOST }}
-                username: ${{ secrets.USERNAME }}
-                key: ${{ secrets.SSH_KEY }}
-                port: ${{ secrets.PORT }}
-                script: |
-                  cd infra-hideyoshi.com;
-                  ./deploy.sh
-
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  key: ${{ secrets.SSH_KEY }}
+                  port: ${{ secrets.PORT }}
+                  script: |
+                      cd infra-hideyoshi.com;
+                      ./deploy.sh
