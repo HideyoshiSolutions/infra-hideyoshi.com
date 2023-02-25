@@ -10,8 +10,8 @@ metadata:
 spec:
     tls:
         - hosts:
-          - hideyoshi.com.br
-          - api.hideyoshi.com.br
+          - dev.hideyoshi.com.br
+          - api.dev.hideyoshi.com.br
           secretName: letsencrypt-cluster-certificate-tls
     rules:
         - host: hideyoshi.com.br
