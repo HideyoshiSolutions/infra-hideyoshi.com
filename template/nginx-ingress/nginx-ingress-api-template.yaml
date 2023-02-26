@@ -2,32 +2,21 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
     namespace: portfolio 
-    name: nginx-ingress
+    name: nginx-ingress-api
     annotations:
         kubernetes.io/ingress.class: nginx
         nginx.ingress.kubernetes.io/use-regex: "true"
-        nginx.ingress.kubernetes.io/rewrite-target: /
+        nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
     tls:
         - hosts:
-          - dev.hideyoshi.com.br
-          - api.dev.hideyoshi.com.br
+          - $DOMAIN
           secretName: letsencrypt-cluster-certificate-tls
     rules:
-        - host: hideyoshi.com.br
+        - host: $DOMAIN
           http:
               paths:
-                  - path: /
-                    pathType: Prefix
-                    backend:
-                        service:
-                            name: frontend-service
-                            port:
-                                number: 5000
-        - host: api.hideyoshi.com.br
-          http:
-              paths:
-                  - path: /
+                  - path: /api(/|$)(.*)
                     pathType: Prefix
                     backend:
                         service:
@@ -36,10 +25,10 @@ spec:
                                 number: 8070
         - http:
               paths:
-                  - path: /
+                  - path: /api(/|$)(.*)
                     pathType: Prefix
                     backend:
                         service:
-                            name: frontend-service
+                            name: backend-service
                             port:
-                                number: 5000
+                                number: 8070
