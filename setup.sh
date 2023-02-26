@@ -22,14 +22,24 @@ function set_working_dir() {
 function main {
 
     if [[ $1 == "--test" || $1 == "-t" ]]; then
+        
+        if [[ -e .secret ]]; then
 
-        set -a
-        while read line; do
-            variable=$(echo -n "$line" | cut -f 1 -d '=')
-            value=$(echo -n $(echo -n "$line" | cut -f 2 -d '=') | base64)
-            declare $variable=$value
-        done < ./.secret
-        set +a
+            set -a
+            while read line; do
+                variable=$(echo -n "$line" | cut -f 1 -d '=')
+                value=$(echo -n $(echo -n "$line" | cut -f 2 -d '=') | base64)
+                declare $variable=$value
+            done < ./.secret
+            
+            set +a
+
+        else 
+
+            echo "ERROR: Secret file not found.";
+            exit 1;
+
+        fi
     
     fi
 
