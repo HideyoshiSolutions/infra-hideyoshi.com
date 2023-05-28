@@ -6,33 +6,26 @@ WORK_DIR='./deployment'
 
 function set_working_dir() {
 
-    cp -r $TEMPLATE $WORK_DIR
+    mkdir -p $WORK_DIR;
+    mkdir -p $WORK_DIR/postgres;
+    mkdir -p $WORK_DIR/redis;
 
-    envsubst < $WORK_DIR/frontend/frontend-secret.template.yaml > $WORK_DIR/frontend/frontend-secret.yaml;
-    envsubst < $WORK_DIR/backend/backend-secret.template.yaml > $WORK_DIR/backend/backend-secret.yaml;
-    envsubst < $WORK_DIR/postgres/postgres-secret.template.yaml > $WORK_DIR/postgres/postgres-secret.yaml;
-    envsubst < $WORK_DIR/redis/redis-secret.template.yaml > $WORK_DIR/redis/redis-secret.yaml;
-    
-    envsubst < $WORK_DIR/nginx-ingress/nginx-ingress-root-template.yaml >  $WORK_DIR/nginx-ingress/nginx-ingress-root.yaml
-    envsubst < $WORK_DIR/nginx-ingress/nginx-ingress-api-template.yaml >  $WORK_DIR/nginx-ingress/nginx-ingress-api.yaml
-    
-    rm $WORK_DIR/frontend/frontend-secret.template.yaml; 
-    rm $WORK_DIR/redis/redis-secret.template.yaml; 
-    rm $WORK_DIR/postgres/postgres-secret.template.yaml; 
-    rm $WORK_DIR/backend/backend-secret.template.yaml;
-
-    rm $WORK_DIR/nginx-ingress/nginx-ingress-root-template.yaml
-    rm $WORK_DIR/nginx-ingress/nginx-ingress-api-template.yaml
+    envsubst < $TEMPLATE/postgres/postgres-secret.template.yaml > $WORK_DIR/postgres/postgres-secret.yaml;
+    envsubst < $TEMPLATE/redis/redis-secret.template.yaml > $WORK_DIR/redis/redis-secret.yaml;
 
 }
 
 function main {
-        
-    if [[ -e .secret ]]; then
+
+    [[ -z $1 ]] && file=".secret" || file=$1
+
+    if [[ -e $file ]]; then
 
         set -a
-
-        if [[ $1 == "--staging" || $1 == "-a" ]]; then
+        
+        if [[ $1 == "--dev" || $1 == "-d" ]]; then
+            DOMAIN="dev.hideyoshi.com.br"
+        elif [[ $1 == "--staging" || $1 == "-a" ]]; then
             DOMAIN="staging.hideyoshi.com.br"
         else 
             DOMAIN="hideyoshi.com.br"
@@ -44,7 +37,7 @@ function main {
                 value=$(echo -n $(echo -n "$line" | cut -f 2 -d '=') | base64)
                 declare $variable=$value
             fi
-        done < ./.secret
+        done < $file
 
         set +a
 
