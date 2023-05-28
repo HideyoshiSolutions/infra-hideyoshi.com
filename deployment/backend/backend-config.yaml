@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    namespace: portfolio
+    name: backend-config
+data:
+    backend_url: backend-service
+    backend_port: "8070"
