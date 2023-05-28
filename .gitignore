@@ -7,3 +7,5 @@
 **/postgres-secret.yaml
 
 **/redis-secret.yaml
+
+**/cert-manager-certificate.yaml
