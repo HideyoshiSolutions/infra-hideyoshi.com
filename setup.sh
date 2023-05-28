@@ -7,11 +7,13 @@ WORK_DIR='./deployment'
 function set_working_dir() {
 
     mkdir -p $WORK_DIR;
-    mkdir -p $WORK_DIR/postgres;
     mkdir -p $WORK_DIR/redis;
+    mkdir -p $WORK_DIR/postgres;
+    mkdir -p $WORK_DIR/frontend;
 
-    envsubst < $TEMPLATE/postgres/postgres-secret.template.yaml > $WORK_DIR/postgres/postgres-secret.yaml;
     envsubst < $TEMPLATE/redis/redis-secret.template.yaml > $WORK_DIR/redis/redis-secret.yaml;
+    envsubst < $TEMPLATE/postgres/postgres-secret.template.yaml > $WORK_DIR/postgres/postgres-secret.yaml;
+    envsubst < $TEMPLATE/frontend/frontend-secret.template.yaml > $WORK_DIR/frontend/frontend-secret.yaml;
 
 }
 

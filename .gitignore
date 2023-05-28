@@ -4,6 +4,8 @@
 
 **/backend-secret.yaml
 
+**/frontend-secret.yaml
+
 **/postgres-secret.yaml
 
 **/redis-secret.yaml
