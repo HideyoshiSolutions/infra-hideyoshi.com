@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    namespace: portfolio
+    name: frontend-config
+data:
+    frontend_url: frontend-service
