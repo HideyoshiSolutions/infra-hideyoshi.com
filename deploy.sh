@@ -2,13 +2,12 @@
 
 function check_k3s_installation() {
     if [ ! -f /usr/local/bin/k3s ]; then
-        export INSTALL_K3S_EXEC="--no-deploy traefik";
-        curl -sfL https://get.k3s.io | sh - ;
+        curl -sfL https://get.k3s.io | sh - 
         sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
     fi
 }
 
-function start_cert_manager {
+function start_cert_manager() {
 
     kubectl apply -f ./deployment/cert-manager/cert-manager.yaml;
     kubectl wait --for=condition=available \
@@ -20,7 +19,7 @@ function start_cert_manager {
 
 }
 
-function application_deploy {
+function application_deploy() {
 
     kubectl apply -f ./deployment/portfolio-namespace.yaml;
 
@@ -58,7 +57,7 @@ function application_deploy {
 
 }
 
-function main {
+function main() {
 
     if [[ $1 == "--test" || $1 == "-t" ]]; then
     
@@ -90,7 +89,7 @@ function main {
         --timeout=120s;
 
         start_cert_manager
-        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer-staging.yaml;
+        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
 
         application_deploy
 
@@ -105,7 +104,7 @@ function main {
         --timeout=120s;
 
         start_cert_manager
-        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer-prod.yaml;
+        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
 
         application_deploy
 

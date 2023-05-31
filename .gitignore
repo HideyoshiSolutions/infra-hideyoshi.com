@@ -1,6 +1,10 @@
 .env
 
-.secret
+.secret*
+
+.idea/
+
+.vscode/
 
 **/backend-secret.yaml
 
@@ -11,3 +15,8 @@
 **/redis-secret.yaml
 
 **/cert-manager-certificate.yaml
+
+**/deployment/nginx-ingress/nginx-ingress-api.yaml
+
+**/deployment/nginx-ingress/nginx-ingress-root.yaml
+
