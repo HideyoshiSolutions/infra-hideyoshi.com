@@ -4,8 +4,8 @@
 TEMPLATE='./template'
 WORK_DIR='./deployment'
 
-function set_working_dir() {
 
+function set_working_dir {
     mkdir -p $WORK_DIR;
     mkdir -p $WORK_DIR/redis;
     mkdir -p $WORK_DIR/postgres;
@@ -19,36 +19,33 @@ function set_working_dir() {
     envsubst < $TEMPLATE/nginx-ingress/nginx-ingress-api.yaml > $WORK_DIR/nginx-ingress/nginx-ingress-api.yaml;
     envsubst < $TEMPLATE/nginx-ingress/nginx-ingress-root.yaml > $WORK_DIR/nginx-ingress/nginx-ingress-root.yaml;
     envsubst < $TEMPLATE/cert-manager/cert-manager-certificate.template.yaml > $WORK_DIR/cert-manager/cert-manager-certificate.yaml;
-
 }
 
-function main {
 
+function main {
+    if [[ $1 == "--prod" || $1 == "-a" ]]; then
+        DOMAIN="hideyoshi.com.br"
+        API_DOMAIN="api.hideyoshi.com.br"
+    elif [[ $1 == "--staging" || $1 == "-a" ]]; then
+        DOMAIN="staging.hideyoshi.com.br"
+        API_DOMAIN="api.staging.hideyoshi.com.br"
+    elif [[ $1 == "--dev" || $1 == "-d" ]]; then
+        DOMAIN="hideyoshi.com.br"
+        API_DOMAIN="api.hideyoshi.com.br"
+    fi
+    
     [[ -z $2 ]] && secret_file=".secret" || secret_file=$2
 
     if [[ -e $secret_file ]]; then
 
         set -a
-        
-        if [[ $1 == "--dev" || $1 == "-d" ]]; then
-            DOMAIN="hideyoshi.com.br"
-            API_DOMAIN="api.hideyoshi.com.br"
-        elif [[ $1 == "--staging" || $1 == "-a" ]]; then
-            DOMAIN="staging.hideyoshi.com.br"
-            API_DOMAIN="api.staging.hideyoshi.com.br"
-        else 
-            DOMAIN="hideyoshi.com.br"
-            API_DOMAIN="api.hideyoshi.com.br"
-        fi
-
         while read line; do
             if [[ $line != "" ]]; then
                 variable=$(echo -n "$line" | cut -f 1 -d '=')
-                value=$(echo -n $(echo -n "$line" | cut -f 2 -d '=') | base64)
-                declare $variable=$value
+                value=$(echo -n $(echo -n "$line" | cut -f 2- -d '=') | base64 -w 0)
+                declare "$variable=$value"
             fi
         done < $secret_file
-
         set +a
 
     else 
@@ -59,7 +56,7 @@ function main {
     fi
 
     set_working_dir
-
 }
+
 
 main $@
