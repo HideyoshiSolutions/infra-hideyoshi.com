@@ -2,15 +2,14 @@
 
 function check_k3s_installation() {
     if [ ! -f /usr/local/bin/k3s ]; then
-        export INSTALL_K3S_EXEC="--no-deploy traefik";
-        curl -sfL https://get.k3s.io | sh - ;
+        curl -sfL https://get.k3s.io | sh - 
         sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
     fi
 }
 
-function start_cert_manager {
+function start_cert_manager() {
 
-    kubectl apply -f ./cert-manager/cert-manager.yaml;
+    kubectl apply -f ./deployment/cert-manager/cert-manager.yaml;
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/cert-manager \
@@ -20,45 +19,45 @@ function start_cert_manager {
 
 }
 
-function application_deploy {
+function application_deploy() {
 
-    kubectl apply -f ./portfolio-namespace.yaml;
+    kubectl apply -f ./deployment/portfolio-namespace.yaml;
 
     kubectl apply -f \
-        ./cert-manager/cert-manager-certificate.yaml;
+        ./deployment/cert-manager/cert-manager-certificate.yaml;
 
-    kubectl apply -f ./postgres;
+    kubectl apply -f ./deployment/postgres;
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/postgres-deployment \
         -n portfolio;
 
-    kubectl apply -f ./redis;
+    kubectl apply -f ./deployment/redis;
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/redis-deployment \
         -n portfolio;
 
-    kubectl apply -f ./frontend;
+    kubectl apply -f ./deployment/frontend;
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/frontend-deployment \
         -n portfolio;
 
-    kubectl apply -f ./backend;
+    kubectl apply -f ./deployment/backend;
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/backend-deployment \
         -n portfolio;
 
     kubectl apply -f \
-        ./nginx-ingress/nginx-ingress-root.yaml;
+        ./deployment/nginx-ingress/nginx-ingress-root.yaml;
     kubectl apply -f \
-        ./nginx-ingress/nginx-ingress-api.yaml;
+        ./deployment/nginx-ingress/nginx-ingress-api.yaml;
 
 }
 
-function main {
+function main() {
 
     if [[ $1 == "--test" || $1 == "-t" ]]; then
     
@@ -67,29 +66,30 @@ function main {
         }
 
         minikube start --driver kvm2;
+        minikube addons enable ingress-dns;
         minikube addons enable ingress;
         
         start_cert_manager
 
         kubectl apply -f \
-            ./cert-manager/cert-manager-issuer-dev.yaml;
+            ./deployment/cert-manager/cert-manager-issuer-dev.yaml;
         
         application_deploy
 
-        echo "http://$(/usr/local/bin/minikube ip)";
+        echo "http://$(/usr/bin/minikube ip)";
 
     elif [[ $1 == "--staging" || $1 == "-s" ]]; then
 
         check_k3s_installation
 
-        kubectl apply -f ./nginx-ingress/nginx-ingress.yaml;
+        kubectl apply -f ./deployment/nginx-ingress/nginx-ingress.yaml;
         kubectl wait --namespace ingress-nginx \
         --for=condition=ready pod \
         --selector=app.kubernetes.io/component=controller \
         --timeout=120s;
 
         start_cert_manager
-        kubectl apply -f ./cert-manager/cert-manager-issuer-staging.yaml;
+        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
 
         application_deploy
 
@@ -97,14 +97,14 @@ function main {
 
         check_k3s_installation
 
-        kubectl apply -f ./nginx-ingress/nginx-ingress.yaml;
+        kubectl apply -f ./deployment/nginx-ingress/nginx-ingress.yaml;
         kubectl wait --namespace ingress-nginx \
         --for=condition=ready pod \
         --selector=app.kubernetes.io/component=controller \
         --timeout=120s;
 
         start_cert_manager
-        kubectl apply -f ./cert-manager/cert-manager-issuer-prod.yaml;
+        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
 
         application_deploy
 

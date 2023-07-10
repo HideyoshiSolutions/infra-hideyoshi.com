@@ -6,4 +6,3 @@ metadata:
 data:
     backend_url: backend-service
     backend_port: "8070"
-
