@@ -5,8 +5,8 @@ metadata:
     namespace: portfolio
 spec:
     dnsNames:
-        - hideyoshi.com.br
-        - api.hideyoshi.com.br
+        - ${DOMAIN}
+        - ${API_DOMAIN}
     secretName: letsencrypt-cluster-certificate-tls
     issuerRef:
         name: cluster-certificate-issuer
