@@ -11,8 +11,11 @@ jobs:
         environment: staging
         runs-on: ubuntu-latest
         steps:
-            - name: checkout
-              uses: actions/checkout@v2
+            - uses: actions/checkout@v3
+            - name: Set up Python 3.8
+              uses: actions/setup-python@v3
+              with:
+                python-version: "3.10"
 
             - name: Make Env File
               uses: SpicyPizza/create-envfile@v2.0
@@ -38,7 +41,9 @@ jobs:
 
             - name: Inserts Prod Enviromental Variables
               run: |
-                ./setup.sh --staging .env
+                python -m pip install --upgrade pip pipenv
+                pipenv install
+                pipenv run python setup.py -e staging -f .env
 
             - name: copy file via ssh
               uses: appleboy/scp-action@master
