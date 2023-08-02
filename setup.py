@@ -30,6 +30,16 @@ ENV_VARIABLES = [
 ]
 
 
+FORCE_BASE64_FIELD = [
+    "OAUTH_GITHUB_CLIENT_ID",
+    "OAUTH_GITHUB_CLIENT_SECRET"
+]
+
+
+def is_force_base64_fields(field: str) -> bool:
+    return field in FORCE_BASE64_FIELD
+
+
 def is_validate_base64(value: str) -> bool:
     if not isinstance(value, str):
         return False
@@ -70,7 +80,7 @@ def load_secret_file(file: str):
 def fetch_env_variables():
     for env in ENV_VARIABLES:
         value = os.environ[env]
-        if is_validate_base64(value):
+        if not is_force_base64_fields(env) and is_validate_base64(value):
             os.environ[env] = value
         else:
             value = value.encode("utf-8")
