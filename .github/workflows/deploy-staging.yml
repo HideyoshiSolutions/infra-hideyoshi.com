@@ -18,28 +18,29 @@ jobs:
                 python-version: "3.10"
 
             - name: Make Env File
-              uses: SpicyPizza/create-envfile@v2.0
+              uses: du5rte/create-secrets-file@v1
               with:
-                  envkey_BACKEND_OAUTH_URL: $( echo -n ${{ secrets.BACKEND_OAUTH_URL }} | base64 )
-                  envkey_BACKEND_URL: $( echo -n ${{ secrets.BACKEND_URL }} | base64 )
-                  envkey_FRONTEND_PATH: $( echo -n ${{ secrets.FRONTEND_PATH }} | base64 )
-                  envkey_GOOGLE_CLIENT_ID: $( echo -n ${{ secrets.GOOGLE_CLIENT_ID }} | base64 )
-                  envkey_GOOGLE_CLIENT_SECRET: $( echo -n ${{ secrets.GOOGLE_CLIENT_SECRET }} | base64 )
-                  envkey_GOOGLE_REDIRECT_URL: $( echo -n ${{ secrets.GOOGLE_REDIRECT_URL }} | base64 )
-                  envkey_OAUTH_GITHUB_CLIENT_ID: $( echo -n ${{ secrets.OAUTH_GITHUB_CLIENT_ID }} | base64 )
-                  envkey_OAUTH_GITHUB_CLIENT_SECRET: $( echo -n ${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }} | base64 )
-                  envkey_OAUTH_GITHUB_REDIRECT_URL: $( echo -n ${{ secrets.OAUTH_GITHUB_REDIRECT_URL }} | base64 )
-                  envkey_ACCESS_TOKEN_DURATION: $( echo -n ${{ secrets.ACCESS_TOKEN_DURATION }} | base64 )
-                  envkey_DEFAULT_USER_EMAIL: $( echo -n ${{ secrets.DEFAULT_USER_EMAIL }} | base64 )
-                  envkey_DEFAULT_USER_FULLNAME: $( echo -n ${{ secrets.DEFAULT_USER_FULLNAME }} | base64 )
-                  envkey_DEFAULT_USER_PASSWORD: $( echo -n ${{ secrets.DEFAULT_USER_PASSWORD }} | base64 )
-                  envkey_DEFAULT_USER_USERNAME: $( echo -n ${{ secrets.DEFAULT_USER_USERNAME }} | base64 )
-                  envkey_POSTGRES_DB: $( echo -n ${{ secrets.POSTGRES_DB }} | base64 )
-                  envkey_POSTGRES_PASSWORD: $( echo -n ${{ secrets.POSTGRES_PASSWORD }} | base64 )
-                  envkey_POSTGRES_USER: $( echo -n ${{ secrets.POSTGRES_USER }} | base64 )
-                  envkey_REDIS_PASSWORD: $( echo -n ${{ secrets.REDIS_PASSWORD }} | base64 )
-                  envkey_REFRESH_TOKEN_DURATION: $( echo -n ${{ secrets.REFRESH_TOKEN_DURATION }} | base64 )
-                  envkey_TOKEN_SECRET: $( echo -n ${{ secrets.TOKEN_SECRET }} | base64 )
+                  secrets: |
+                      BACKEND_OAUTH_URL: ${{ secrets.BACKEND_OAUTH_URL }}
+                      BACKEND_URL: ${{ secrets.BACKEND_URL }}
+                      FRONTEND_PATH: ${{ secrets.FRONTEND_PATH }}
+                      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+                      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+                      GOOGLE_REDIRECT_URL: ${{ secrets.GOOGLE_REDIRECT_URL }}
+                      OAUTH_GITHUB_CLIENT_ID: ${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
+                      OAUTH_GITHUB_CLIENT_SECRET: ${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
+                      OAUTH_GITHUB_REDIRECT_URL: ${{ secrets.OAUTH_GITHUB_REDIRECT_URL }}
+                      ACCESS_TOKEN_DURATION: ${{ secrets.ACCESS_TOKEN_DURATION}}
+                      DEFAULT_USER_EMAIL: ${{ secrets.DEFAULT_USER_EMAIL}}
+                      DEFAULT_USER_FULLNAME: ${{ secrets.DEFAULT_USER_FULLNAME}}
+                      DEFAULT_USER_PASSWORD: ${{ secrets.DEFAULT_USER_PASSWORD}}
+                      DEFAULT_USER_USERNAME: ${{ secrets.DEFAULT_USER_USERNAME}}
+                      POSTGRES_DB: ${{ secrets.POSTGRES_DB}}
+                      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD}}
+                      POSTGRES_USER: ${{ secrets.POSTGRES_USER}}
+                      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD}}
+                      REFRESH_TOKEN_DURATION: ${{ secrets.REFRESH_TOKEN_DURATION}}
+                      TOKEN_SECRET: ${{ secrets.TOKEN_SECRET}}
 
             - name: Inserts Prod Enviromental Variables
               run: |
