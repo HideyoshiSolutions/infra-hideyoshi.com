@@ -3,7 +3,7 @@ name: remote ssh command
 on:
     push:
         branches:
-            - staging
+            - "staging"
 
 jobs:
     build:
