@@ -5,7 +5,11 @@ from pathlib import Path, PosixPath
 import argparse
 import os
 
-ENV_SECRETS = [
+
+ENV_VARIABLES = [
+    "FRONTEND_PATH",
+    "BACKEND_URL",
+    "BACKEND_OAUTH_URL",
     "TOKEN_SECRET",
     "ACCESS_TOKEN_DURATION",
     "REFRESH_TOKEN_DURATION",
@@ -13,23 +17,40 @@ ENV_SECRETS = [
     "DEFAULT_USER_EMAIL",
     "DEFAULT_USER_USERNAME",
     "DEFAULT_USER_PASSWORD",
-    "POSTGRES_USER",
-    "POSTGRES_PASSWORD",
-    "POSTGRES_DB",
-    "REDIS_PASSWORD",
-]
-
-REPO_SECRETS = [
-    "FRONTEND_PATH",
-    "BACKEND_URL",
-    "BACKEND_OAUTH_URL",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "GOOGLE_REDIRECT_URL",
     "OAUTH_GITHUB_CLIENT_ID",
     "OAUTH_GITHUB_CLIENT_SECRET",
     "OAUTH_GITHUB_REDIRECT_URL",
+    "POSTGRES_USER",
+    "POSTGRES_PASSWORD",
+    "POSTGRES_DB",
+    "REDIS_PASSWORD",
 ]
+
+
+FORCE_BASE64_FIELD = [
+    "OAUTH_GITHUB_CLIENT_ID",
+    "OAUTH_GITHUB_CLIENT_SECRET"
+]
+
+
+def is_force_base64_fields(field: str) -> bool:
+    return field in FORCE_BASE64_FIELD
+
+
+def is_validate_base64(value: str) -> bool:
+    if not isinstance(value, str):
+        return False
+
+    try:
+        if b64encode(b64decode(value)).decode() == value:
+            return True
+    except:
+        pass
+
+    return False
 
 
 def setting_environment(environment: str):
@@ -38,11 +59,11 @@ def setting_environment(environment: str):
 
     match environment:
         case "staging":
-            DOMAIN = "staging.hideyoshi.com.br"
-            API_DOMAIN = "api.staging.hideyoshi.com.br"
+            DOMAIN="staging.hideyoshi.com.br"
+            API_DOMAIN="api.staging.hideyoshi.com.br"
         case _:
-            DOMAIN = "hideyoshi.com.br"
-            API_DOMAIN = "api.hideyoshi.com.br"
+            DOMAIN="hideyoshi.com.br"
+            API_DOMAIN="api.hideyoshi.com.br"
 
     os.environ["DOMAIN"] = DOMAIN
     os.environ["API_DOMAIN"] = API_DOMAIN
@@ -57,26 +78,21 @@ def load_secret_file(file: str):
 
 
 def fetch_env_variables():
-    for env in ENV_SECRETS:
-        if not os.environ[env]:
-            raise ValueError(f"Environment Variable {env} is Empty")
-
-        value = os.environ[env].encode("utf-8")
-        os.environ[env] = b64encode(value).decode()
-
-
-def validate_env_variables():
-    for env in (ENV_SECRETS + REPO_SECRETS):
-        if not os.environ[env]:
-            raise ValueError(f"Environment Variable {env} is Empty")
+    for env in ENV_VARIABLES:
+        value = os.environ[env]
+        if not is_force_base64_fields(env) and is_validate_base64(value):
+            os.environ[env] = value
+        else:
+            value = value.encode("utf-8")
+            os.environ[env] = b64encode(value).decode()
 
 
 def envsubst_file(file: PosixPath):
     with open(file) as f:
         formated_file = envsubst(f.read())
 
-    new_file = Path("deployment") \
-        .joinpath(*[part.split('.')[0] for part in file.parts if part != "template"]) \
+    new_file = Path("deployment")\
+        .joinpath(*[part.split('.')[0] for part in file.parts if part != "template"])\
         .with_suffix(".yaml")
 
     with open(new_file, 'w') as f:
@@ -96,8 +112,6 @@ def main(file, environment):
 
     fetch_env_variables()
 
-    validate_env_variables()
-
     substitute_secrets_from_templates()
 
 
@@ -106,7 +120,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-f", "--file",
         dest="file",
-        default=".secret",
+        default=".env",
         help="Secret file [default = .secret]"
     )
     parser.add_argument(
