@@ -7,7 +7,6 @@ spec:
     dnsNames:
         - ${DOMAIN}
         - ${API_DOMAIN}
-        - ${STORAGE_API_DOMAIN}
     secretName: letsencrypt-cluster-certificate-tls
     issuerRef:
         name: cluster-certificate-issuer
