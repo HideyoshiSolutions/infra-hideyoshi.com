@@ -157,8 +157,8 @@ spec:
 
                       - name: STORAGE_SERVICE_PATH
                         valueFrom:
-                            configMapKeyRef:
-                                name: storage-config
+                            secretKeyRef:
+                                name: storage-secret
                                 key: storage_url
 
 ---

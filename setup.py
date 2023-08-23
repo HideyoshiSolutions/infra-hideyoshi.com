@@ -27,6 +27,7 @@ ENV_VARIABLES = [
     "POSTGRES_PASSWORD",
     "POSTGRES_DB",
     "REDIS_PASSWORD",
+    "STORAGE_URL",
     "STORAGE_TYPE",
     "AWS_ACCESS_KEY_ID",
     "AWS_SECRET_ACCESS_KEY",
@@ -37,7 +38,9 @@ ENV_VARIABLES = [
 
 FORCE_BASE64_FIELD = [
     "OAUTH_GITHUB_CLIENT_ID",
-    "OAUTH_GITHUB_CLIENT_SECRET"
+    "OAUTH_GITHUB_CLIENT_SECRET",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
 ]
 
 
@@ -66,12 +69,15 @@ def setting_environment(environment: str):
         case "staging":
             DOMAIN="staging.hideyoshi.com.br"
             API_DOMAIN="api.staging.hideyoshi.com.br"
+            STORAGE_API_DOMAIN="storage.staging.hideyoshi.com.br"
         case _:
             DOMAIN="hideyoshi.com.br"
             API_DOMAIN="api.hideyoshi.com.br"
+            STORAGE_API_DOMAIN="storage.hideyoshi.com.br"
 
     os.environ["DOMAIN"] = DOMAIN
     os.environ["API_DOMAIN"] = API_DOMAIN
+    os.environ["STORAGE_API_DOMAIN"] = STORAGE_API_DOMAIN
 
 
 def load_secret_file(file: str):

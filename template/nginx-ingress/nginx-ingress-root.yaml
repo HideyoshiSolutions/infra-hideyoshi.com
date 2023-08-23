@@ -12,6 +12,7 @@ spec:
     - hosts:
         - ${DOMAIN}
         - ${API_DOMAIN}
+        - ${STORAGE_API_DOMAIN}
       secretName: letsencrypt-cluster-certificate-tls
   rules:
     - host: ${DOMAIN}
@@ -34,6 +35,16 @@ spec:
                 name: backend-service
                 port:
                   number: 8070
+    - host: ${STORAGE_API_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: storage-service
+                port:
+                  number: 8000
     - http:
         paths:
           - path: /
