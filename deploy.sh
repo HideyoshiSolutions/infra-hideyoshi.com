@@ -23,6 +23,13 @@ function application_deploy() {
 
     kubectl apply -f ./deployment/portfolio-namespace.yaml;
 
+
+    kubectl apply -f ./deployment/postgres/postgres-secret.yaml;
+    kubectl apply -f ./deployment/redis/redis-secret.yaml;
+    kubectl apply -f ./deployment/storage/storage-secret.yaml;
+    kubectl apply -f ./deployment/backend/backend-secret.yaml;
+    kubectl apply -f ./deployment/frontend/frontend-secret.yaml;
+
     kubectl apply -f \
         ./deployment/cert-manager/cert-manager-certificate.yaml;
 
@@ -42,6 +49,12 @@ function application_deploy() {
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/frontend-deployment \
+        -n portfolio;
+
+    kubectl apply -f ./deployment/storage;
+    kubectl wait --for=condition=available \
+        --timeout=600s \
+        deployment.apps/storage-deployment \
         -n portfolio;
 
     kubectl apply -f ./deployment/backend;

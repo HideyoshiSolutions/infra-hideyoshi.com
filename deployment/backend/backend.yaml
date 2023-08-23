@@ -16,7 +16,7 @@ spec:
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
-                  imagePullPolicy: "Always"
+                  imagePullPolicy: Always
                   ports:
                       - containerPort: 8070
                   env:
@@ -154,6 +154,21 @@ spec:
                             secretKeyRef:
                                 name: redis-secret
                                 key: redis-password
+
+                      - name: STORAGE_SERVICE_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: storage-config
+                                key: storage_url
+
+                      - name: STORAGE_SERVICE_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: storage-config
+                                key: storage_port
+
+                      - name: STORAGE_SERVICE_PATH
+                        value: "http://$(STORAGE_SERVICE_URL):$(STORAGE_SERVICE_PORT)"
 
 ---
 apiVersion: v1

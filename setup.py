@@ -5,7 +5,6 @@ from pathlib import Path, PosixPath
 import argparse
 import os
 
-
 ENV_VARIABLES = [
     "FRONTEND_PATH",
     "BACKEND_URL",
@@ -27,12 +26,19 @@ ENV_VARIABLES = [
     "POSTGRES_PASSWORD",
     "POSTGRES_DB",
     "REDIS_PASSWORD",
+    "STORAGE_URL",
+    "STORAGE_TYPE",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_REGION_NAME",
+    "AWS_BUCKET_NAME",
 ]
-
 
 FORCE_BASE64_FIELD = [
     "OAUTH_GITHUB_CLIENT_ID",
-    "OAUTH_GITHUB_CLIENT_SECRET"
+    "OAUTH_GITHUB_CLIENT_SECRET",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
 ]
 
 
@@ -59,11 +65,11 @@ def setting_environment(environment: str):
 
     match environment:
         case "staging":
-            DOMAIN="staging.hideyoshi.com.br"
-            API_DOMAIN="api.staging.hideyoshi.com.br"
+            DOMAIN = "staging.hideyoshi.com.br"
+            API_DOMAIN = "api.staging.hideyoshi.com.br"
         case _:
-            DOMAIN="hideyoshi.com.br"
-            API_DOMAIN="api.hideyoshi.com.br"
+            DOMAIN = "hideyoshi.com.br"
+            API_DOMAIN = "api.hideyoshi.com.br"
 
     os.environ["DOMAIN"] = DOMAIN
     os.environ["API_DOMAIN"] = API_DOMAIN
@@ -91,8 +97,8 @@ def envsubst_file(file: PosixPath):
     with open(file) as f:
         formated_file = envsubst(f.read())
 
-    new_file = Path("deployment")\
-        .joinpath(*[part.split('.')[0] for part in file.parts if part != "template"])\
+    new_file = Path("deployment") \
+        .joinpath(*[part.split('.')[0] for part in file.parts if part != "template"]) \
         .with_suffix(".yaml")
 
     with open(new_file, 'w') as f:

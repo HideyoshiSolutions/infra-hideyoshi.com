@@ -6,6 +6,8 @@
 
 .vscode/
 
+**/storage-secret.yaml
+
 **/backend-secret.yaml
 
 **/frontend-secret.yaml
