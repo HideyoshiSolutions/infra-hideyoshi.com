@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    namespace: portfolio
+    name: storage-processor-deployment
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: storage-processor
+    template:
+        metadata:
+            labels:
+                app: storage-processor
+        spec:
+            containers:
+                - name: storage-processor
+                  image: yoshiunfriendly/storage-hideyoshi.com:latest
+                  command: [ "poetry", "run", "rq", "worker", " --with-scheduler" ]
+                  imagePullPolicy: "Always"
+                  env:
+                      - name: REDIS_BASE_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: redis-config
+                                key: redis-url
+
+                      - name: REDIS_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: redis-config
+                                key: redis-port
+
+                      - name: REDIS_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: redis-secret
+                                key: redis-password
+
+                      - name: REDIS_URL
+                        value: "redis://:$(REDIS_PASSWORD)@$(REDIS_BASE_URL):$(REDIS_PORT)"
