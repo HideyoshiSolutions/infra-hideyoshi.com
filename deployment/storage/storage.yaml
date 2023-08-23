@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    namespace: portfolio
+    name: storage-deployment
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: storage
+    template:
+        metadata:
+            labels:
+                app: storage
+        spec:
+            containers:
+                - name: storage
+                  image: yoshiunfriendly/storage-hideyoshi.com:latest
+                  imagePullPolicy: "Always"
+                  ports:
+                      - containerPort: 8000
+                  env:
+                      - name: ALLOWED_ORIGINS
+                        valueFrom:
+                            secretKeyRef:
+                                name: frontend-secret
+                                key: backend_url
+
+                      - name: EXPIRES_IN
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: access_token_duration
+
+                      - name: SERVER_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: storage-config
+                                key: storage_port
+
+                      - name: REDIS_HOST
+                        valueFrom:
+                            configMapKeyRef:
+                                name: redis-config
+                                key: redis-url
+
+                      - name: REDIS_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: redis-config
+                                key: redis-port
+
+                      - name: REDIS_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: redis-secret
+                                key: redis-password
+
+                      - name: STORAGE_TYPE
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: storage_type
+
+                      - name: AWS_ACCESS_KEY_ID
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_access_key_id
+
+                      - name: AWS_SECRET_ACCESS_KEY
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_access_access_key
+
+                      - name: AWS_REGION_NAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_region_name
+
+                      - name: AWS_BUCKET_NAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_bucket_name
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    namespace: portfolio
+    name: storage-service
+spec:
+    selector:
+        app: storage
+    ports:
+        - port: 8000
+          protocol: TCP
+          targetPort: 8000
+    type: ClusterIP
