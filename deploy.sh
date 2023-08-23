@@ -44,6 +44,12 @@ function application_deploy() {
         deployment.apps/frontend-deployment \
         -n portfolio;
 
+    kubectl apply -f ./deployment/storage;
+    kubectl wait --for=condition=available \
+        --timeout=600s \
+        deployment.apps/storage-deployment \
+        -n portfolio;
+
     kubectl apply -f ./deployment/backend;
     kubectl wait --for=condition=available \
         --timeout=600s \

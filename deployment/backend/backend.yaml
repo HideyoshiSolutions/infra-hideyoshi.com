@@ -155,6 +155,12 @@ spec:
                                 name: redis-secret
                                 key: redis-password
 
+                      - name: STORAGE_SERVICE_PATH
+                        valueFrom:
+                            configMapKeyRef:
+                                name: storage-config
+                                key: storage_url
+
 ---
 apiVersion: v1
 kind: Service
