@@ -16,13 +16,6 @@ spec:
     - host: ${DOMAIN}
       http:
         paths:
-          - path: /api/storage
-            pathType: Prefix
-            backend:
-              service:
-                name: storage-service
-                port:
-                  number: 8000
           - path: /api(/|$)(.*)
             pathType: Prefix
             backend:
@@ -32,13 +25,6 @@ spec:
                   number: 8070
     - http:
         paths:
-          - path: /api/storage
-            pathType: Prefix
-            backend:
-              service:
-                name: storage-service
-                port:
-                  number: 8000
           - path: /api(/|$)(.*)
             pathType: Prefix
             backend:
