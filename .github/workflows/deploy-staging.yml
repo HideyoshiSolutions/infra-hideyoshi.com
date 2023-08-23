@@ -40,7 +40,6 @@ jobs:
                   envkey_REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD}}
                   envkey_REFRESH_TOKEN_DURATION: ${{ secrets.REFRESH_TOKEN_DURATION}}
                   envkey_TOKEN_SECRET: ${{ secrets.TOKEN_SECRET}}
-                  envkey_STORAGE_URL: ${{ secrets.STORAGE_URL }}
                   envkey_STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}
                   envkey_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   envkey_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
