@@ -16,7 +16,8 @@ spec:
             containers:
                 - name: storage-processor
                   image: yoshiunfriendly/storage-hideyoshi.com:latest
-                  command: [ "poetry", "run", "rq", "worker", " --with-scheduler" ]
+                  command: [ "./run-queue.sh" ]
+                  args: [ "-q" ]
                   imagePullPolicy: "Always"
                   env:
                       - name: REDIS_BASE_URL
@@ -39,3 +40,33 @@ spec:
 
                       - name: REDIS_URL
                         value: "redis://:$(REDIS_PASSWORD)@$(REDIS_BASE_URL):$(REDIS_PORT)"
+
+                      - name: STORAGE_TYPE
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: storage_type
+
+                      - name: AWS_ACCESS_KEY_ID
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_access_key_id
+
+                      - name: AWS_SECRET_ACCESS_KEY
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_access_access_key
+
+                      - name: AWS_REGION_NAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_region_name
+
+                      - name: AWS_BUCKET_NAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: aws_bucket_name
