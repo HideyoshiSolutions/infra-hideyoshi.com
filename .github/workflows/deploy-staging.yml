@@ -45,6 +45,8 @@ jobs:
                   envkey_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                   envkey_AWS_REGION_NAME: ${{ secrets.AWS_REGION_NAME }}
                   envkey_AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+                  envkey_VIRUS_CHECKER_TYPE: ${{ secrets.VIRUS_CHECKER_TYPE }}
+                  envkey_VIRUS_CHECKER_API_KEY: ${{ secrets.VIRUS_CHECKER_API_KEY }}
 
             - name: Inserts Prod Enviromental Variables
               run: |

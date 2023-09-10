@@ -70,3 +70,15 @@ spec:
                             secretKeyRef:
                                 name: storage-secret
                                 key: aws_bucket_name
+
+                      - name: VIRUS_CHECKER_TYPE
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: virus_checker_type
+
+                      - name: VIRUS_CHECKER_API_KEY
+                        valueFrom:
+                            secretKeyRef:
+                                name: storage-secret
+                                key: virus_checher_api_key
