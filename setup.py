@@ -31,38 +31,19 @@ ENV_VARIABLES = [
     "AWS_SECRET_ACCESS_KEY",
     "AWS_REGION_NAME",
     "AWS_BUCKET_NAME",
+    "VIRUS_CHECKER_TYPE",
+    "VIRUS_CHECKER_API_KEY",
 ]
-
-FORCE_BASE64_FIELD = [
-    "OAUTH_GITHUB_CLIENT_ID",
-    "OAUTH_GITHUB_CLIENT_SECRET",
-    "AWS_ACCESS_KEY_ID",
-    "AWS_SECRET_ACCESS_KEY",
-]
-
-
-def is_force_base64_fields(field: str) -> bool:
-    return field in FORCE_BASE64_FIELD
-
-
-def is_validate_base64(value: str) -> bool:
-    if not isinstance(value, str):
-        return False
-
-    try:
-        if b64encode(b64decode(value)).decode() == value:
-            return True
-    except:
-        pass
-
-    return False
 
 
 def setting_environment(environment: str):
-    if not environment in ("prod", "staging", "dev"):
+    if not environment in ("prod", "staging", "local", "dev"):
         raise ValueError("Invalid Environment Selected")
 
     match environment:
+        case "local":
+            DOMAIN = "local.hideyoshi.com.br"
+            API_DOMAIN = "api.local.hideyoshi.com.br"
         case "staging":
             DOMAIN = "staging.hideyoshi.com.br"
             API_DOMAIN = "api.staging.hideyoshi.com.br"
@@ -85,11 +66,8 @@ def load_secret_file(file: str):
 def fetch_env_variables():
     for env in ENV_VARIABLES:
         value = os.environ[env]
-        if not is_force_base64_fields(env) and is_validate_base64(value):
-            os.environ[env] = value
-        else:
-            value = value.encode("utf-8")
-            os.environ[env] = b64encode(value).decode()
+        value = value.encode("utf-8")
+        os.environ[env] = b64encode(value).decode()
 
 
 def envsubst_file(file: PosixPath):
