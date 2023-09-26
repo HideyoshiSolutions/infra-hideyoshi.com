@@ -1,22 +1,15 @@
 #!/bin/bash
 
-function check_k3s_installation() {
-    if [ ! -f /usr/local/bin/k3s ]; then
-        curl -sfL https://get.k3s.io | sh - 
-        sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
+function configure_helm() {
+    if [ ! -f /usr/local/bin/helm ]; then
+        curl -sfL curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash -
     fi
-}
 
-function start_cert_manager() {
+    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 
-    kubectl apply -f ./deployment/cert-manager/cert-manager.yaml;
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/cert-manager \
-        deployment.apps/cert-manager-cainjector \
-        deployment.apps/cert-manager-webhook \
-        -n cert-manager;
+    helm repo update
 
+    helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.publishService.enabled=true
 }
 
 function application_deploy() {
@@ -82,41 +75,20 @@ function main() {
         minikube addons enable ingress-dns;
         minikube addons enable ingress;
         
-        start_cert_manager
+        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
 
-        kubectl apply -f \
-            ./deployment/cert-manager/cert-manager-issuer-dev.yaml;
+        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer-dev.yaml;
         
         application_deploy
 
         echo "http://$(/usr/bin/minikube ip)";
 
-    elif [[ $1 == "--staging" || $1 == "-s" ]]; then
-
-        check_k3s_installation
-
-        kubectl apply -f ./deployment/nginx-ingress/nginx-ingress.yaml;
-        kubectl wait --namespace ingress-nginx \
-        --for=condition=ready pod \
-        --selector=app.kubernetes.io/component=controller \
-        --timeout=120s;
-
-        start_cert_manager
-        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
-
-        application_deploy
-
     else
 
-        check_k3s_installation
+        configure_helm
 
-        kubectl apply -f ./deployment/nginx-ingress/nginx-ingress.yaml;
-        kubectl wait --namespace ingress-nginx \
-        --for=condition=ready pod \
-        --selector=app.kubernetes.io/component=controller \
-        --timeout=120s;
+        kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
 
-        start_cert_manager
         kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
 
         application_deploy
