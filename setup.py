@@ -152,9 +152,11 @@ def validate_env(env: dict):
 
 def write_secrets_to_file(env: dict):
     for key, secret in env.items():
-        dir = Path("deployment", "secrets")
+        secrets_dir = Path("deployment", "secrets")
+        if not secrets_dir.exists():
+            secrets_dir.mkdir()
 
-        with open(dir.joinpath(f"{key}.json"), "w") as f:
+        with open(secrets_dir.joinpath(f"{key}.json"), "w") as f:
             json.dump(secret, f, indent=4)
 
 
