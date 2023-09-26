@@ -24,49 +24,49 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: frontend-secret
-                                key: frontend_path
+                                key: frontendPath
 
                       - name: TOKEN_SECRET
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: token_secret
+                                key: tokenSecret
 
                       - name: ACCESS_TOKEN_DURATION
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: access_token_duration
+                                key: accessTokenDuration
 
                       - name: REFRESH_TOKEN_DURATION
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: refresh_token_duration
+                                key: refreshTokenDuration
 
                       - name: DEFAULT_USER_FULLNAME
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: default_user_fullname
+                                key: defaultUserFullName
 
                       - name: DEFAULT_USER_EMAIL
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: default_user_email
+                                key: defaultUserEmail
 
                       - name: DEFAULT_USER_USERNAME
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: default_user_username
+                                key: defaultUserUsername
 
                       - name: DEFAULT_USER_PASSWORD
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: default_user_password
+                                key: defaultUserPassword
 
                       - name: PORT
                         valueFrom:
@@ -78,37 +78,37 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: google_client_id
+                                key: googleClientId
 
                       - name: GOOGLE_CLIENT_SECRET
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: google_client_secret
+                                key: googleClientSecret
 
                       - name: GOOGLE_REDIRECT_URL
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: google_redirect_url
+                                key: googleRedirectUrl
 
                       - name: GITHUB_CLIENT_ID
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: github_client_id
+                                key: githubClientId
 
                       - name: GITHUB_CLIENT_SECRET
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: github_client_secret
+                                key: githubClientSecret
 
                       - name: GITHUB_REDIRECT_URL
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: github_redirect_url
+                                key: githubRedirectUrl
 
                       - name: POSTGRES_URL
                         valueFrom:
@@ -120,7 +120,7 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: postgres-secret
-                                key: POSTGRES_DB
+                                key: postgresDatabase
 
                       - name: DATABASE_URL
                         value: "postgresql://$(POSTGRES_URL):5432/$(POSTGRES_DB)"
@@ -129,13 +129,13 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: postgres-secret
-                                key: POSTGRES_USER
+                                key: postgresUser
 
                       - name: DATABASE_PASSWORD
                         valueFrom:
                             secretKeyRef:
                                 name: postgres-secret
-                                key: POSTGRES_PASSWORD
+                                key: postgresPassword
 
                       - name: REDIS_URL
                         valueFrom:
@@ -153,7 +153,7 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: redis-secret
-                                key: redis-password
+                                key: redisPassword
 
                       - name: STORAGE_SERVICE_URL
                         valueFrom:

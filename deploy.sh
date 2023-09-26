@@ -16,12 +16,11 @@ function application_deploy() {
 
     kubectl apply -f ./deployment/portfolio-namespace.yaml;
 
-
-    kubectl apply -f ./deployment/postgres/postgres-secret.yaml;
-    kubectl apply -f ./deployment/redis/redis-secret.yaml;
-    kubectl apply -f ./deployment/storage/storage-secret.yaml;
-    kubectl apply -f ./deployment/backend/backend-secret.yaml;
-    kubectl apply -f ./deployment/frontend/frontend-secret.yaml;
+    kubectl create secret generic backend-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/backendSecret.json);
+    kubectl create secret generic frontend-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/frontendSecret.json);
+    kubectl create secret generic postgres-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/postgresSecret.json);
+    kubectl create secret generic redis-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/redisSecret.json);
+    kubectl create secret generic storage-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/storageSecret.json);
 
     kubectl apply -f \
         ./deployment/cert-manager/cert-manager-certificate.yaml;
