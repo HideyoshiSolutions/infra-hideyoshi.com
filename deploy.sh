@@ -1,16 +1,5 @@
 #!/bin/bash
 
-function configure_helm() {
-    if [ ! -f /usr/local/bin/helm ]; then
-        curl -sfL curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash -
-    fi
-
-    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-
-    helm repo update
-
-    helm install nginx-ingress ingress-nginx/ingress-nginx --set controller.publishService.enabled=true
-}
 
 function application_deploy() {
 
@@ -84,7 +73,7 @@ function main() {
 
     else
 
-        configure_helm
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.0/deploy/static/provider/baremetal/deploy.yaml
 
         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
 
