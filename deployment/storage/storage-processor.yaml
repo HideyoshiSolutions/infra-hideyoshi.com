@@ -20,7 +20,7 @@ spec:
                   args: [ "-q" ]
                   imagePullPolicy: "Always"
                   env:
-                      - name: REDIS_HOST
+                      - name: REDIS_BASE_URL
                         valueFrom:
                             configMapKeyRef:
                                 name: redis-config
@@ -37,6 +37,9 @@ spec:
                             secretKeyRef:
                                 name: redis-secret
                                 key: redisPassword
+
+                      - name: REDIS_URL
+                        value: "redis://:$(REDIS_PASSWORD)@$(REDIS_BASE_URL):$(REDIS_PORT)/rq"
 
                       - name: STORAGE_TYPE
                         valueFrom:

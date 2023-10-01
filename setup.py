@@ -37,11 +37,6 @@ def configure_templates(environment: str):
     )
 
     write_template(
-        "template/nginx-ingress/nginx-ingress-api.yaml",
-        "deployment/nginx-ingress/nginx-ingress-api.yaml"
-    )
-
-    write_template(
         "template/nginx-ingress/nginx-ingress-root.yaml",
         "deployment/nginx-ingress/nginx-ingress-root.yaml"
     )
@@ -120,6 +115,16 @@ def validate_storage_secret(secret: str):
             raise ValueError(f"Key {key} not found in storageSecret")
 
 
+def validate_certmanager_secret(secret: str):
+    required_keys = [
+        'dnsApiKey',
+    ]
+
+    for key in required_keys:
+        if key not in secret:
+            raise ValueError(f"Key {key} not found in certmanagerSecret")
+
+
 
 
 def validate_env(env: dict):
@@ -129,6 +134,7 @@ def validate_env(env: dict):
         'postgresSecret',
         'redisSecret',
         'storageSecret',
+        'certmanagerSecret'
     ]
 
     for secret in required_secrets:
@@ -149,6 +155,9 @@ def validate_env(env: dict):
 
         if secret == 'storageSecret':
             validate_storage_secret(env[secret])
+
+        if secret == 'certmanagerSecret':
+            validate_certmanager_secret(env[secret])
 
 def write_secrets_to_file(env: dict):
     for key, secret in env.items():

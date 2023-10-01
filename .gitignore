@@ -13,3 +13,4 @@
 **/deployment/nginx-ingress/nginx-ingress-api.yaml
 
 **/deployment/nginx-ingress/nginx-ingress-root.yaml
+*.patch
