@@ -94,9 +94,17 @@ function main() {
 
         application_deploy
 
+        external_ip=""
+        while [ -z $external_ip ]; do
+            echo "Waiting for end point..."
+            external_ip=$(kubectl get svc --namespace=ingress-nginx ingress-nginx-controller --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+            [ -z "$external_ip" ] && sleep 10
+        done
+
         configure_cert_manager
 
-        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml
+        kubectl apply -f \
+            ./deployment/cert-manager/cert-manager-issuer.yaml
 
         kubectl apply -f \
             ./deployment/cert-manager/cert-manager-certificate.yaml
