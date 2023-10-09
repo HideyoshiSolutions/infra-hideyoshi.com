@@ -45,5 +45,6 @@ jobs:
                 port: ${{ secrets.SSH_PORT }}
                 key: ${{ secrets.SSH_KEY }}
                 script: |
+                  sudo apt update && sudo apt install -y jq python3-pip
                   cd infra-hideyoshi.com
                   ./deploy.sh --prod
