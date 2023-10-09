@@ -19,7 +19,7 @@ jobs:
 
             - name: Create Config Json File
               run: |
-                echo ${{ secrets.CONFIG_JSON }} | base64 -d > config.json
+                echo "${{ secrets.CONFIG_JSON }}" | base64 -d > config.json
 
             - name: Inserts Prod Enviromental Variables
               run: |
