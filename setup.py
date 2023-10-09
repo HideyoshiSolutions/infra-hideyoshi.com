@@ -3,40 +3,17 @@ from dotenv import load_dotenv
 from envsubst import envsubst
 from pathlib import Path, PosixPath
 import argparse
+import warnings
+import json
 import os
 
-ENV_VARIABLES = [
-    "FRONTEND_PATH",
-    "BACKEND_URL",
-    "BACKEND_OAUTH_URL",
-    "TOKEN_SECRET",
-    "ACCESS_TOKEN_DURATION",
-    "REFRESH_TOKEN_DURATION",
-    "DEFAULT_USER_FULLNAME",
-    "DEFAULT_USER_EMAIL",
-    "DEFAULT_USER_USERNAME",
-    "DEFAULT_USER_PASSWORD",
-    "GOOGLE_CLIENT_ID",
-    "GOOGLE_CLIENT_SECRET",
-    "GOOGLE_REDIRECT_URL",
-    "OAUTH_GITHUB_CLIENT_ID",
-    "OAUTH_GITHUB_CLIENT_SECRET",
-    "OAUTH_GITHUB_REDIRECT_URL",
-    "POSTGRES_USER",
-    "POSTGRES_PASSWORD",
-    "POSTGRES_DB",
-    "REDIS_PASSWORD",
-    "STORAGE_TYPE",
-    "AWS_ACCESS_KEY_ID",
-    "AWS_SECRET_ACCESS_KEY",
-    "AWS_REGION_NAME",
-    "AWS_BUCKET_NAME",
-    "VIRUS_CHECKER_TYPE",
-    "VIRUS_CHECKER_API_KEY",
-]
 
+def write_template(template: str, output: str):
+    with open(template, 'r') as template,\
+         open(output, 'w') as output:
+        output.write(envsubst(template.read()))
 
-def setting_environment(environment: str):
+def configure_templates(environment: str):
     if not environment in ("prod", "staging", "local", "dev"):
         raise ValueError("Invalid Environment Selected")
 
@@ -54,48 +31,141 @@ def setting_environment(environment: str):
     os.environ["DOMAIN"] = DOMAIN
     os.environ["API_DOMAIN"] = API_DOMAIN
 
+    write_template(
+        "template/cert-manager/cert-manager-certificate.template.yaml", 
+        "deployment/cert-manager/cert-manager-certificate.yaml"
+    )
 
-def load_secret_file(file: str):
-    secret_file_path = Path(file)
-    if not secret_file_path.exists():
-        raise FileNotFoundError("Secret File Doesn't Exists")
-
-    load_dotenv(dotenv_path=secret_file_path)
-
-
-def fetch_env_variables():
-    for env in ENV_VARIABLES:
-        value = os.environ[env]
-        value = value.encode("utf-8")
-        os.environ[env] = b64encode(value).decode()
+    write_template(
+        "template/nginx-ingress/nginx-ingress-root.yaml",
+        "deployment/nginx-ingress/nginx-ingress-root.yaml"
+    )
 
 
-def envsubst_file(file: PosixPath):
-    with open(file) as f:
-        formated_file = envsubst(f.read())
+def validate_backend_secret(secret: str):
+    required_keys = [
+        'tokenSecret',
+        'accessTokenDuration',
+        'refreshTokenDuration',
+        'defaultUserFullName',
+        'defaultUserEmail',
+        'defaultUserUsername',
+        'defaultUserPassword',
+        'googleClientId',
+        'googleClientSecret',
+        'googleRedirectUrl',
+        'githubClientId',
+        'githubClientSecret',
+        'githubRedirectUrl'
+    ]
 
-    new_file = Path("deployment") \
-        .joinpath(*[part.split('.')[0] for part in file.parts if part != "template"]) \
-        .with_suffix(".yaml")
-
-    with open(new_file, 'w') as f:
-        f.write(formated_file)
+    for key in required_keys:
+        if key not in secret:
+            raise ValueError(f"Key {key} not found in backendSecret")
 
 
-def substitute_secrets_from_templates():
-    for subdir in Path("template").glob("*"):
-        for file in subdir.glob("*.yaml"):
-            envsubst_file(file)
+def validate_frontend_secret(secret: str):
+    required_keys = [
+        'frontendPath',
+        'backendUrl',
+        'backendOAuthUrl',
+    ]
+
+    for key in required_keys:
+        if key not in secret:
+            raise ValueError(f"Key {key} not found in frontendSecret")
+
+
+def validate_postgres_secret(secret: str):
+    required_keys = [
+        'postgresUser',
+        'postgresPassword',
+        'postgresDatabase'
+    ]
+
+    for key in required_keys:
+        if key not in secret:
+            raise ValueError(f"Key {key} not found in postgresSecret")
+
+
+
+def validate_redis_secret(secret: str):
+    required_keys = [
+        'redisPassword',
+    ]
+
+    for key in required_keys:
+        if key not in secret:
+            raise ValueError(f"Key {key} not found in redisSecret")
+
+
+def validate_storage_secret(secret: str):
+    required_keys = [
+        'storageType',
+        'awsAccessKeyId',
+        'awsSecretAccessKey',
+        'awsRegion',
+        'awsBucket',
+        'virusCheckerType',
+        'virusCheckerApiKey',
+    ]
+
+    for key in required_keys:
+        if key not in secret:
+            raise ValueError(f"Key {key} not found in storageSecret")
+
+
+def validate_env(env: dict):
+    required_secrets = [
+        'backendSecret',
+        'frontendSecret',
+        'postgresSecret',
+        'redisSecret',
+        'storageSecret',
+    ]
+
+    for secret in required_secrets:
+        if secret not in env:
+            raise ValueError(f"Secret {secret} not found in env.json")
+
+        if secret == 'backendSecret':
+            validate_backend_secret(env[secret])
+
+        if secret == 'frontendSecret':
+            validate_frontend_secret(env[secret])
+
+        if secret == 'postgresSecret':
+            validate_postgres_secret(env[secret])
+        
+        if secret == 'redisSecret':
+            validate_redis_secret(env[secret])
+
+        if secret == 'storageSecret':
+            validate_storage_secret(env[secret])
+
+def write_secrets_to_file(env: dict):
+    for key, secret in env.items():
+        secrets_dir = Path("deployment", "secrets")
+        if not secrets_dir.exists():
+            secrets_dir.mkdir()
+
+        with open(secrets_dir.joinpath(f"{key}.json"), "w") as f:
+            json.dump(secret, f, indent=4)
+
+
+def read_env_json(file: str) -> dict:
+    with open(file, "r") as f:
+        return json.load(f)
 
 
 def main(file, environment):
-    setting_environment(environment)
+    env = read_env_json(file)
 
-    load_secret_file(file)
+    validate_env(env)
 
-    fetch_env_variables()
+    write_secrets_to_file(env)
 
-    substitute_secrets_from_templates()
+    configure_templates(environment)
 
 
 if __name__ == "__main__":

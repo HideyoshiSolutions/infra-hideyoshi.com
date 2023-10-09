@@ -36,49 +36,49 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: redis-secret
-                                key: redis-password
+                                key: redisPassword
 
                       - name: REDIS_URL
-                        value: "redis://:$(REDIS_PASSWORD)@$(REDIS_BASE_URL):$(REDIS_PORT)"
+                        value: "redis://:$(REDIS_PASSWORD)@$(REDIS_BASE_URL):$(REDIS_PORT)/rq"
 
                       - name: STORAGE_TYPE
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: storage_type
+                                key: storageType
 
                       - name: AWS_ACCESS_KEY_ID
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: aws_access_key_id
+                                key: awsAccessKeyId
 
                       - name: AWS_SECRET_ACCESS_KEY
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: aws_access_access_key
+                                key: awsSecretAccessKey
 
                       - name: AWS_REGION_NAME
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: aws_region_name
+                                key: awsRegion
 
                       - name: AWS_BUCKET_NAME
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: aws_bucket_name
+                                key: awsBucket
 
                       - name: VIRUS_CHECKER_TYPE
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: virus_checker_type
+                                key: virusCheckerType
 
                       - name: VIRUS_CHECKER_API_KEY
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: virus_checher_api_key
+                                key: virusCheckerApiKey

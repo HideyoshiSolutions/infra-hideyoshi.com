@@ -1,129 +1,117 @@
 #!/bin/bash
 
-function check_k3s_installation() {
-    if [ ! -f /usr/local/bin/k3s ]; then
-        curl -sfL https://get.k3s.io | sh - 
-        sudo chmod 644 /etc/rancher/k3s/k3s.yaml;
-    fi
+function configure_nginx_ingress() {
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.0/deploy/static/provider/cloud/deploy.yaml
+    kubectl wait --namespace ingress-nginx \
+        --for=condition=ready pod \
+        --selector=app.kubernetes.io/component=controller \
+        --timeout=120s
 }
 
-function start_cert_manager() {
-
-    kubectl apply -f ./deployment/cert-manager/cert-manager.yaml;
+function configure_cert_manager() {
+    kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.5/cert-manager.yaml
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/cert-manager \
         deployment.apps/cert-manager-cainjector \
         deployment.apps/cert-manager-webhook \
-        -n cert-manager;
-
+        -n cert-manager
 }
 
 function application_deploy() {
 
-    kubectl apply -f ./deployment/portfolio-namespace.yaml;
+    kubectl apply -f ./deployment/portfolio-namespace.yaml
 
+    kubectl create secret generic backend-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/backendSecret.json)
+    kubectl create secret generic frontend-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/frontendSecret.json)
+    kubectl create secret generic postgres-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/postgresSecret.json)
+    kubectl create secret generic redis-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/redisSecret.json)
+    kubectl create secret generic storage-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/storageSecret.json)
 
-    kubectl apply -f ./deployment/postgres/postgres-secret.yaml;
-    kubectl apply -f ./deployment/redis/redis-secret.yaml;
-    kubectl apply -f ./deployment/storage/storage-secret.yaml;
-    kubectl apply -f ./deployment/backend/backend-secret.yaml;
-    kubectl apply -f ./deployment/frontend/frontend-secret.yaml;
-
-    kubectl apply -f \
-        ./deployment/cert-manager/cert-manager-certificate.yaml;
-
-    kubectl apply -f ./deployment/postgres;
+    kubectl apply -f ./deployment/postgres
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/postgres-deployment \
-        -n portfolio;
+        -n portfolio
 
-    kubectl apply -f ./deployment/redis;
+    kubectl apply -f ./deployment/redis
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/redis-deployment \
-        -n portfolio;
+        -n portfolio
 
-    kubectl apply -f ./deployment/frontend;
+    kubectl apply -f ./deployment/frontend
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/frontend-deployment \
-        -n portfolio;
+        -n portfolio
 
-    kubectl apply -f ./deployment/storage;
+    kubectl apply -f ./deployment/storage
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/storage-deployment \
-        -n portfolio;
+        -n portfolio
 
-    kubectl apply -f ./deployment/backend;
+    kubectl apply -f ./deployment/backend
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/backend-deployment \
-        -n portfolio;
+        -n portfolio
 
     kubectl apply -f \
-        ./deployment/nginx-ingress/nginx-ingress-root.yaml;
+        ./deployment/nginx-ingress/nginx-ingress-root.yaml
     kubectl apply -f \
-        ./deployment/nginx-ingress/nginx-ingress-api.yaml;
+        ./deployment/nginx-ingress/nginx-ingress-api.yaml
 
 }
 
 function main() {
 
     if [[ $1 == "--test" || $1 == "-t" ]]; then
-    
+
         function kubectl {
             minikube kubectl -- $@
         }
 
-        minikube start --driver kvm2;
-        minikube addons enable ingress-dns;
-        minikube addons enable ingress;
-        
-        start_cert_manager
+        minikube start --driver kvm2
+        minikube addons enable ingress-dns
+        minikube addons enable ingress
+
+        application_deploy
+
+        configure_cert_manager
+
+        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer-dev.yaml
 
         kubectl apply -f \
-            ./deployment/cert-manager/cert-manager-issuer-dev.yaml;
-        
-        application_deploy
+            ./deployment/cert-manager/cert-manager-certificate.yaml
 
-        echo "http://$(/usr/bin/minikube ip)";
-
-    elif [[ $1 == "--staging" || $1 == "-s" ]]; then
-
-        check_k3s_installation
-
-        kubectl apply -f ./deployment/nginx-ingress/nginx-ingress.yaml;
-        kubectl wait --namespace ingress-nginx \
-        --for=condition=ready pod \
-        --selector=app.kubernetes.io/component=controller \
-        --timeout=120s;
-
-        start_cert_manager
-        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
-
-        application_deploy
+        echo "http://$(/usr/bin/minikube ip)"
 
     else
 
-        check_k3s_installation
-
-        kubectl apply -f ./deployment/nginx-ingress/nginx-ingress.yaml;
-        kubectl wait --namespace ingress-nginx \
-        --for=condition=ready pod \
-        --selector=app.kubernetes.io/component=controller \
-        --timeout=120s;
-
-        start_cert_manager
-        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer.yaml;
+        configure_nginx_ingress
 
         application_deploy
 
+        external_ip=""
+        while [ -z $external_ip ]; do
+            echo "Waiting for end point..."
+            external_ip=$(kubectl get svc --namespace=ingress-nginx ingress-nginx-controller --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+            [ -z "$external_ip" ] && sleep 10
+        done
+
+        configure_cert_manager
+
+        kubectl apply -f \
+            ./deployment/cert-manager/cert-manager-issuer.yaml
+
+        kubectl apply -f \
+            ./deployment/cert-manager/cert-manager-certificate.yaml
+
     fi
 
-    exit 0;
+    exit 0
 
 }
 

@@ -17,42 +17,15 @@ jobs:
               with:
                 python-version: "3.10"
 
-            - name: Make Env File
-              uses: SpicyPizza/create-envfile@v2.0
-              with:
-                  envkey_BACKEND_OAUTH_URL: ${{ secrets.BACKEND_OAUTH_URL }}
-                  envkey_BACKEND_URL: ${{ secrets.BACKEND_URL }}
-                  envkey_FRONTEND_PATH: ${{ secrets.FRONTEND_PATH }}
-                  envkey_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-                  envkey_GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-                  envkey_GOOGLE_REDIRECT_URL: ${{ secrets.GOOGLE_REDIRECT_URL }}
-                  envkey_OAUTH_GITHUB_CLIENT_ID: ${{ secrets.OAUTH_GITHUB_CLIENT_ID }}
-                  envkey_OAUTH_GITHUB_CLIENT_SECRET: ${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
-                  envkey_OAUTH_GITHUB_REDIRECT_URL: ${{ secrets.OAUTH_GITHUB_REDIRECT_URL }}
-                  envkey_ACCESS_TOKEN_DURATION: ${{ secrets.ACCESS_TOKEN_DURATION}}
-                  envkey_DEFAULT_USER_EMAIL: ${{ secrets.DEFAULT_USER_EMAIL}}
-                  envkey_DEFAULT_USER_FULLNAME: ${{ secrets.DEFAULT_USER_FULLNAME}}
-                  envkey_DEFAULT_USER_PASSWORD: ${{ secrets.DEFAULT_USER_PASSWORD}}
-                  envkey_DEFAULT_USER_USERNAME: ${{ secrets.DEFAULT_USER_USERNAME}}
-                  envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB}}
-                  envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD}}
-                  envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER}}
-                  envkey_REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD}}
-                  envkey_REFRESH_TOKEN_DURATION: ${{ secrets.REFRESH_TOKEN_DURATION}}
-                  envkey_TOKEN_SECRET: ${{ secrets.TOKEN_SECRET}}
-                  envkey_STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}
-                  envkey_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                  envkey_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  envkey_AWS_REGION_NAME: ${{ secrets.AWS_REGION_NAME }}
-                  envkey_AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-                  envkey_VIRUS_CHECKER_TYPE: ${{ secrets.VIRUS_CHECKER_TYPE }}
-                  envkey_VIRUS_CHECKER_API_KEY: ${{ secrets.VIRUS_CHECKER_API_KEY }}
+            - name: Create Config Json File
+              run: |
+                echo ${{ secrets.CONFIG_JSON }} | base64 -d > config.json
 
-            # - name: Inserts Prod Enviromental Variables
-            #   run: |
-            #     python -m pip install --upgrade pip pipenv
-            #     pipenv install
-            #     pipenv run python setup.py -e staging -f .env
+            - name: Inserts Prod Enviromental Variables
+              run: |
+                python -m pip install --upgrade pip pipenv
+                pipenv install
+                pipenv run python setup.py -e staging -f config.json
 
             - name: copy file via ssh
               uses: appleboy/scp-action@master
@@ -64,13 +37,13 @@ jobs:
                 source: "."
                 target: "infra-hideyoshi.com"
 
-            # - name: executing remote ssh commands
-            #   uses: appleboy/ssh-action@master
-            #   with:
-            #     host: ${{ secrets.SSH_HOST }}
-            #     username: ${{ secrets.SSH_USER }}
-            #     port: ${{ secrets.SSH_PORT }}
-            #     key: ${{ secrets.SSH_KEY }}
-            #     script: |
-            #       cd infra-hideyoshi.com
-            #       ./deploy.sh --staging
+            - name: executing remote ssh commands
+              uses: appleboy/ssh-action@master
+              with:
+                host: ${{ secrets.SSH_HOST }}
+                username: ${{ secrets.SSH_USER }}
+                port: ${{ secrets.SSH_PORT }}
+                key: ${{ secrets.SSH_KEY }}
+                script: |
+                  cd infra-hideyoshi.com
+                  ./deploy.sh --staging

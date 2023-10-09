@@ -6,18 +6,11 @@
 
 .vscode/
 
-**/storage-secret.yaml
-
-**/backend-secret.yaml
-
-**/frontend-secret.yaml
-
-**/postgres-secret.yaml
-
-**/redis-secret.yaml
+**/*.json
 
 **/cert-manager-certificate.yaml
 
 **/deployment/nginx-ingress/nginx-ingress-api.yaml
 
 **/deployment/nginx-ingress/nginx-ingress-root.yaml
+*.patch
