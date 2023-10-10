@@ -17,6 +17,13 @@ spec:
                 - name: postgres
                   image: postgres:14-bullseye
                   imagePullPolicy: "IfNotPresent"
+                  resources:
+                    requests:
+                      memory: "512Mi"
+                      cpu: "500m"
+                    limits:
+                      memory: "512Mi"
+                      cpu: "500m"
                   ports:
                       - containerPort: 5432
                   env:
