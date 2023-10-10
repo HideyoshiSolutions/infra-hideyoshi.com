@@ -73,7 +73,7 @@ function main() {
             minikube kubectl -- $@
         }
 
-        minikube start --driver kvm2
+        minikube start --driver kvm2 --cpus 6 --memory 6Gib
         minikube addons enable ingress-dns
         minikube addons enable ingress
 
