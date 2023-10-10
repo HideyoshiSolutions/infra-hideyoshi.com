@@ -19,6 +19,13 @@ spec:
                 - name: frontend
                   image: yoshiunfriendly/frontend-hideyoshi.com:latest
                   imagePullPolicy: "Always"
+                  resources:
+                    requests:
+                      memory: "256Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "1536Mi"
+                      cpu: "750m"
                   ports:
                       - containerPort: 5000
                   env:

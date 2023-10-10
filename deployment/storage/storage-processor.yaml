@@ -19,6 +19,13 @@ spec:
                   command: [ "./run-queue.sh" ]
                   args: [ "-q" ]
                   imagePullPolicy: "Always"
+                  resources:
+                    requests:
+                      memory: "512Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "1024Mi"
+                      cpu: "500m"
                   env:
                       - name: REDIS_BASE_URL
                         valueFrom:
