@@ -13,6 +13,7 @@ def write_template(template: str, output: str):
          open(output, 'w') as output:
         output.write(envsubst(template.read()))
 
+
 def configure_templates(environment: str):
     if not environment in ("prod", "staging", "local"):
         raise ValueError("Invalid Environment Selected")
