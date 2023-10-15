@@ -11,7 +11,7 @@
     ```
     python -m pip install --upgrade pip pipenv
     pipenv install
-    pipenv run python setup.py -e prod -f config.json
+    pipenv run python setup.py -e {{environment-option}} -f config.json
     ```
 
 - Running Kubernetes Application:
@@ -22,4 +22,6 @@
     ./deploy.sh {{environmet-flag}}
     ```
 
-    `{{environment-flag}}`: `--test`, `--staging`, `--prod`
+    `{{environment-flag}}` : `--local`, `--staging`, `--prod`
+
+    `{{environment-option}` : `local`, `staging`, `prod`

@@ -14,7 +14,7 @@ def write_template(template: str, output: str):
         output.write(envsubst(template.read()))
 
 def configure_templates(environment: str):
-    if not environment in ("prod", "staging", "local", "dev"):
+    if not environment in ("prod", "staging", "local"):
         raise ValueError("Invalid Environment Selected")
 
     match environment:
