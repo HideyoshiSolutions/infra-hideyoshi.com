@@ -67,7 +67,7 @@ function application_deploy() {
 
 function main() {
 
-    if [[ $1 == "--test" || $1 == "-t" ]]; then
+    if [[ $1 == "--local" || $1 == "-l" ]]; then
 
         function kubectl {
             minikube kubectl -- $@
