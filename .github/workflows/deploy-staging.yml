@@ -48,3 +48,4 @@ jobs:
                   sudo apt update && sudo apt install -y jq python3-pip
                   cd infra-hideyoshi.com
                   ./deploy.sh --staging
+                  ./refresh.sh

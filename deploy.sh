@@ -109,10 +109,6 @@ function main() {
         kubectl apply -f \
             ./deployment/cert-manager/cert-manager-certificate.yaml
 
-        if [[ $1 == "--staging" || $1 == "-s" ]]; then
-            bash ./refresh.sh
-        fi
-
     fi
 
     exit 0
