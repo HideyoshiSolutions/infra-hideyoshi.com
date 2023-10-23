@@ -111,9 +111,6 @@ function main() {
 
     fi
 
-    # Refreshes all pods in case of a new image
-    bash ./refresh.sh
-
     exit 0
 
 }

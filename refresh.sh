@@ -4,12 +4,16 @@ NAMESPACES=(
     portfolio
 )
 
-DEPLOYMENTS=(
-    "frontend-deployment"
-    "backend-deployment"
-    "storage-deployment"
-    "storage-processor-deployment"
-)
+if [ $# -eq 0 ]; then
+    DEPLOYMENTS=(
+        "frontend-deployment"
+        "backend-deployment"
+        "storage-deployment"
+        "storage-processor-deployment"
+    )
+else
+    DEPLOYMENTS=("$@")
+fi
 
 for i in "${NAMESPACES[@]}"; do
     for x in "${DEPLOYMENTS[@]}"; do
