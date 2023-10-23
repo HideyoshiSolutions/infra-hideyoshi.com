@@ -1,0 +1,48 @@
+name: workflow_02
+
+on: 
+    workflow_run:
+        workflows: ["build"]
+        branches: [main]
+        types:
+            - completed
+    repository_dispatch:
+        types: [refresh-deployments]
+
+jobs:
+    refresh-deployments:
+        name: Refresh deployments
+        environment: prod
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Executing Remote Commands - Refresh All Deployments
+              env:
+                deployments: ${{ github.event.client_payload.deployments }}
+              if: ${{ env.deployments == '' }}
+              uses: appleboy/ssh-action@master
+              with:
+                host: ${{ secrets.SSH_HOST }}
+                username: ${{ secrets.SSH_USER }}
+                port: ${{ secrets.SSH_PORT }}
+                key: ${{ secrets.SSH_KEY }}
+                script: |
+                    [[ -d infra-hideyoshi.com ]] && \
+                    ./infra-hideyoshi.com/refresh.sh 
+
+            - name: Executing Remote Commands - Refresh Specific Deployments
+              env:
+                deployments: ${{ github.event.client_payload.deployments }}
+              if: ${{ env.deployments != '' }}
+              uses: appleboy/ssh-action@master
+              with:
+                host: ${{ secrets.SSH_HOST }}
+                username: ${{ secrets.SSH_USER }}
+                port: ${{ secrets.SSH_PORT }}
+                key: ${{ secrets.SSH_KEY }}
+                script: |
+                    [[ -d infra-hideyoshi.com ]] && \
+                    ./infra-hideyoshi.com/refresh.sh ${{ env.deployments }}

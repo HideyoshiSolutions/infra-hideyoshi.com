@@ -109,10 +109,11 @@ function main() {
         kubectl apply -f \
             ./deployment/cert-manager/cert-manager-certificate.yaml
 
-    fi
+        if [[ $1 == "--staging" || $1 == "-s" ]]; then
+            bash ./refresh.sh
+        fi
 
-    # Refreshes all pods in case of a new image
-    bash ./refresh.sh
+    fi
 
     exit 0
 
