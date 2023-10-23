@@ -1,11 +1,6 @@
 name: workflow_02
 
 on: 
-    workflow_run:
-        workflows: ["build"]
-        branches: [main]
-        types:
-            - completed
     repository_dispatch:
         types: [refresh-deployments]
 
@@ -21,7 +16,7 @@ jobs:
             - name: Executing Remote Commands - Refresh All Deployments
               env:
                 deployments: ${{ github.event.client_payload.deployments }}
-              if: ${{ env.deployments == '' || github.event.workflow_run.conclusion == 'success' }}
+              if: ${{ env.deployments == '' }}
               uses: appleboy/ssh-action@master
               with:
                 host: ${{ secrets.SSH_HOST }}
