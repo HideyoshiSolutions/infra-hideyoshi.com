@@ -1,6 +1,8 @@
 name: remote ssh command
 
 on:
+    repository_dispatch:
+        types: [deploy-staging]
     push:
         branches:
             - staging
