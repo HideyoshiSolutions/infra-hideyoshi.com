@@ -1,6 +1,16 @@
+<div align="center">
+  <a href="https://github.com/HideyoshiNakazone/hideyoshi.com">
+    <img src="https://drive.google.com/uc?export=view&id=1ka1kTMcloX_wjAlKLET9VoaRTyRuGmxQ" width="100" height="100" allow="autoplay"\>
+  </a>
+</div>
+
+
 # infra-hideyoshi.com
 
-## How to Configure
+Made using Kubernetes, this project was made for the deployment of the [hideyoshi.com project](https://github.com/HideyoshiNakazone/hideyoshi.com).
+
+All code in this repo is distributed freely by the GPLv3 License.
+## Usage
 
 - Requirements:
 
@@ -25,3 +35,7 @@
     `{{environment-flag}}` : `--local`, `--staging`, `--prod`
 
     `{{environment-option}` : `local`, `staging`, `prod`
+## Authors
+
+- [@HideyoshiNakazone](https://github.com/HideyoshiNakazone)
+
