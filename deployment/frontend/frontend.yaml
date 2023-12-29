@@ -41,6 +41,11 @@ spec:
                             secretKeyRef:
                                 name: frontend-secret
                                 key: backendOAuthUrl
+                      - name: GITHUB_USER
+                        valueFrom:
+                            secretKeyRef:
+                                name: frontend-secret
+                                key: githubUser
 
 ---
 apiVersion: v1
