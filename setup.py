@@ -70,6 +70,7 @@ def validate_frontend_secret(secret: str):
         'frontendPath',
         'backendUrl',
         'backendOAuthUrl',
+        'githubUser'
     ]
 
     for key in required_keys:
