@@ -25,7 +25,8 @@ jobs:
                 key: ${{ secrets.SSH_KEY }}
                 script: |
                     [[ -d infra-hideyoshi.com ]] && \
-                    ./infra-hideyoshi.com/refresh.sh 
+                    cd infra-hideyoshi.com && \
+                    ./refresh.sh 
 
             - name: Executing Remote Commands - Refresh Specific Deployments
               env:
