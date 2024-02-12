@@ -1,7 +1,26 @@
 #!/bin/bash
 
+
+function check_for_dependencies() {
+    if ! command -v kubectl &> /dev/null; then
+        echo "kubectl could not be found"
+        exit 1
+    fi
+    if ! command -v jq &> /dev/null; then
+        echo "jq could not be found"
+        exit 1
+    fi
+    if ! command -v helm &> /dev/null; then
+        echo "helm could not be found"
+        exit 1
+    fi
+}
+
 function configure_nginx_ingress() {
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.0/deploy/static/provider/cloud/deploy.yaml
+    helm upgrade --install ingress-nginx ingress-nginx \
+        --repo https://kubernetes.github.io/ingress-nginx \
+        --namespace ingress-nginx --create-namespace
+
     kubectl wait --namespace ingress-nginx \
         --for=condition=ready pod \
         --selector=app.kubernetes.io/component=controller \
@@ -22,11 +41,20 @@ function application_deploy() {
 
     kubectl apply -f ./deployment/portfolio-namespace.yaml
 
-    kubectl create secret generic backend-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/backendSecret.json)
-    kubectl create secret generic frontend-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/frontendSecret.json)
-    kubectl create secret generic postgres-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/postgresSecret.json)
-    kubectl create secret generic redis-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/redisSecret.json)
-    kubectl create secret generic storage-secret -n portfolio --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/storageSecret.json)
+    kubectl create secret generic backend-secret -n portfolio \
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/backendSecret.json);
+        
+    kubectl create secret generic frontend-secret -n portfolio \
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/frontendSecret.json);
+        
+    kubectl create secret generic postgres-secret -n portfolio \
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/postgresSecret.json);
+
+    kubectl create secret generic redis-secret -n portfolio \
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/redisSecret.json);
+
+    kubectl create secret generic storage-secret -n portfolio \
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/storageSecret.json);
 
     kubectl apply -f ./deployment/postgres
     kubectl wait --for=condition=available \
@@ -67,13 +95,15 @@ function application_deploy() {
 
 function main() {
 
+    check_for_dependencies
+
     if [[ $1 == "--local" || $1 == "-l" ]]; then
 
         function kubectl {
             minikube kubectl -- $@
         }
 
-        minikube start --driver kvm2 --cpus 3 --memory 3Gib
+        minikube start --driver kvm2 --cpus 4 --memory 3Gib
         minikube addons enable ingress-dns
         minikube addons enable ingress
 
@@ -81,7 +111,8 @@ function main() {
 
         configure_cert_manager
 
-        kubectl apply -f ./deployment/cert-manager/cert-manager-issuer-dev.yaml
+        kubectl apply -f \
+            ./deployment/cert-manager/cert-manager-issuer-dev.yaml
 
         kubectl apply -f \
             ./deployment/cert-manager/cert-manager-certificate.yaml
