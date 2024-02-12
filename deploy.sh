@@ -1,16 +1,15 @@
 #!/bin/bash
 
-
 function check_for_dependencies() {
-    if ! command -v kubectl &> /dev/null; then
+    if ! command -v kubectl &>/dev/null; then
         echo "kubectl could not be found"
         exit 1
     fi
-    if ! command -v jq &> /dev/null; then
+    if ! command -v jq &>/dev/null; then
         echo "jq could not be found"
         exit 1
     fi
-    if ! command -v helm &> /dev/null; then
+    if ! command -v helm &>/dev/null; then
         echo "helm could not be found"
         exit 1
     fi
@@ -28,39 +27,37 @@ function configure_nginx_ingress() {
 }
 
 function configure_cert_manager() {
-    kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.5/cert-manager.yaml
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/cert-manager \
-        deployment.apps/cert-manager-cainjector \
-        deployment.apps/cert-manager-webhook \
-        -n cert-manager
+    helm repo add jetstack https://charts.jetstack.io --force-update
+    helm repo update
+    helm install cert-manager jetstack/cert-manager \
+        --namespace cert-manager \
+        --create-namespace \
+        --version v1.14.2
+}
+
+function configure_postgres() {
+    helm install --create-namespace \
+        --namespace portfolio stackgres-operator \
+        --set-string adminui.service.type=ClusterIP \
+        https://stackgres.io/downloads/stackgres-k8s/stackgres/latest/helm/stackgres-operator.tgz
+
+    kubectl wait deployment -l group=stackgres.io --for=condition=Available -n portfolio
+    kubectl apply -f ./deployment/postgres/sgcluster.yaml
 }
 
 function application_deploy() {
 
-    kubectl apply -f ./deployment/portfolio-namespace.yaml
-
     kubectl create secret generic backend-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/backendSecret.json);
-        
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/backendSecret.json)
+
     kubectl create secret generic frontend-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/frontendSecret.json);
-        
-    kubectl create secret generic postgres-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/postgresSecret.json);
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/frontendSecret.json)
 
     kubectl create secret generic redis-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/redisSecret.json);
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/redisSecret.json)
 
     kubectl create secret generic storage-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/storageSecret.json);
-
-    kubectl apply -f ./deployment/postgres
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/postgres-deployment \
-        -n portfolio
+        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/storageSecret.json)
 
     kubectl apply -f ./deployment/redis
     kubectl wait --for=condition=available \
@@ -107,9 +104,21 @@ function main() {
         minikube addons enable ingress-dns
         minikube addons enable ingress
 
-        application_deploy
+    else
 
-        configure_cert_manager
+        configure_nginx_ingress
+
+    fi
+
+    kubectl apply -f ./deployment/portfolio-namespace.yaml
+
+    configure_postgres
+
+    application_deploy
+
+    configure_cert_manager
+
+    if [[ $1 == "--local" || $1 == "-l" ]]; then
 
         kubectl apply -f \
             ./deployment/cert-manager/cert-manager-issuer-dev.yaml
@@ -118,21 +127,10 @@ function main() {
             ./deployment/cert-manager/cert-manager-certificate.yaml
 
         echo "http://$(/usr/bin/minikube ip)"
-
+        
     else
 
         configure_nginx_ingress
-
-        application_deploy
-
-        external_ip=""
-        while [ -z $external_ip ]; do
-            echo "Waiting for end point..."
-            external_ip=$(kubectl get svc --namespace=ingress-nginx ingress-nginx-controller --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
-            [ -z "$external_ip" ] && sleep 10
-        done
-
-        configure_cert_manager
 
         kubectl apply -f \
             ./deployment/cert-manager/cert-manager-issuer.yaml
