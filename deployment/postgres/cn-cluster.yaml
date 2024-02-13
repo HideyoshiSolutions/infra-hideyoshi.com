@@ -17,7 +17,7 @@ spec:
             cpu: "50m"
         limits:
             memory: "128Mi"
-            cpu: "100m"
+            cpu: "75m"
 
     monitoring:
         enablePodMonitor: true

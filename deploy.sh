@@ -32,7 +32,8 @@ function configure_cert_manager() {
     helm install cert-manager jetstack/cert-manager \
         --namespace cert-manager \
         --create-namespace \
-        --version v1.13.3
+        --version v1.14.2 \
+        --set installCRDs=true
 }
 
 function configure_postgres() {
