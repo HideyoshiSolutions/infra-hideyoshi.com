@@ -6,3 +6,4 @@ metadata:
 data:
     backend_url: backend-service
     backend_port: "8070"
+    backend_db_name: portfolio

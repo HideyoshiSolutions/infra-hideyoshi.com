@@ -18,12 +18,12 @@ spec:
                   image: yoshiunfriendly/backend-hideyoshi.com
                   imagePullPolicy: Always
                   resources:
-                    requests:
-                      memory: "256Mi"
-                      cpu: "250m"
-                    limits:
-                      memory: "256Mi"
-                      cpu: "250m"
+                      requests:
+                          memory: "256Mi"
+                          cpu: "250m"
+                      limits:
+                          memory: "256Mi"
+                          cpu: "250m"
                   ports:
                       - containerPort: 8070
                   env:
@@ -119,15 +119,15 @@ spec:
 
                       - name: POSTGRES_URL
                         valueFrom:
-                            configMapKeyRef:
-                                name: postgres-config
-                                key: postgres_url
+                            secretKeyRef:
+                                name: postgres-cn-cluster-app
+                                key: host
 
                       - name: POSTGRES_DB
                         valueFrom:
                             secretKeyRef:
-                                name: postgres-secret
-                                key: postgresDatabase
+                                name: postgres-cn-cluster-app
+                                key: dbname
 
                       - name: DATABASE_URL
                         value: "postgresql://$(POSTGRES_URL):5432/$(POSTGRES_DB)"
@@ -135,14 +135,14 @@ spec:
                       - name: DATABASE_USERNAME
                         valueFrom:
                             secretKeyRef:
-                                name: postgres-secret
-                                key: postgresUser
+                                name: postgres-cn-cluster-app
+                                key: user
 
                       - name: DATABASE_PASSWORD
                         valueFrom:
                             secretKeyRef:
-                                name: postgres-secret
-                                key: postgresPassword
+                                name: postgres-cn-cluster-app
+                                key: password
 
                       - name: REDIS_URL
                         valueFrom:

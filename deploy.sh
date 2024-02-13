@@ -32,17 +32,26 @@ function configure_cert_manager() {
     helm install cert-manager jetstack/cert-manager \
         --namespace cert-manager \
         --create-namespace \
-        --version v1.14.2
+        --version v1.13.3
 }
 
 function configure_postgres() {
-    helm install --create-namespace \
-        --namespace portfolio stackgres-operator \
-        --set-string adminui.service.type=ClusterIP \
-        https://stackgres.io/downloads/stackgres-k8s/stackgres/latest/helm/stackgres-operator.tgz
+    helm repo add cnpg https://cloudnative-pg.github.io/charts
+    helm upgrade --install cnpg \
+        --namespace portfolio \
+        --create-namespace \
+        cnpg/cloudnative-pg
 
-    kubectl wait deployment -l group=stackgres.io --for=condition=Available -n portfolio
-    kubectl apply -f ./deployment/postgres/sgcluster.yaml
+    kubectl wait --for=condition=available \
+        --timeout=600s \
+        deployment.apps/cnpg-cloudnative-pg \
+        -n portfolio
+
+    kubectl apply -f ./deployment/postgres/cn-cluster.yaml
+    kubectl wait --for=condition=Ready \
+        --timeout=600s \
+        cluster/postgres-cn-cluster \
+        -n portfolio
 }
 
 function application_deploy() {
@@ -100,7 +109,7 @@ function main() {
             minikube kubectl -- $@
         }
 
-        minikube start --driver kvm2 --cpus 4 --memory 3Gib
+        minikube start --driver kvm2 --cpus 4 --memory 4Gib
         minikube addons enable ingress-dns
         minikube addons enable ingress
 
@@ -127,10 +136,8 @@ function main() {
             ./deployment/cert-manager/cert-manager-certificate.yaml
 
         echo "http://$(/usr/bin/minikube ip)"
-        
-    else
 
-        configure_nginx_ingress
+    else
 
         kubectl apply -f \
             ./deployment/cert-manager/cert-manager-issuer.yaml
