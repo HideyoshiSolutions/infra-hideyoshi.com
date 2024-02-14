@@ -33,7 +33,8 @@ function configure_cert_manager() {
         --namespace cert-manager \
         --create-namespace \
         --version v1.14.2 \
-        --set installCRDs=true
+        --set installCRDs=true \
+        --timeout=600s
 }
 
 function configure_postgres() {
@@ -120,13 +121,13 @@ function main() {
 
     fi
 
+    configure_cert_manager
+
     kubectl apply -f ./deployment/portfolio-namespace.yaml
 
     configure_postgres
 
     application_deploy
-
-    configure_cert_manager
 
     if [[ $1 == "--local" || $1 == "-l" ]]; then
 
