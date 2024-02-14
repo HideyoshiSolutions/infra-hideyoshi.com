@@ -1,0 +1,23 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+    name: postgres-cn-cluster
+    namespace: portfolio
+spec:
+    instances: 3
+    primaryUpdateStrategy: unsupervised
+    imageName: ghcr.io/cloudnative-pg/postgresql:14.10-18
+
+    storage:
+        size: 5Gi
+
+    resources:
+        requests:
+            memory: "32Mi"
+            cpu: "50m"
+        limits:
+            memory: "128Mi"
+            cpu: "75m"
+
+    monitoring:
+        enablePodMonitor: true
