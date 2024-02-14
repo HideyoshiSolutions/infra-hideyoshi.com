@@ -48,7 +48,8 @@ jobs:
                 port: ${{ secrets.SSH_PORT }}
                 key: ${{ secrets.SSH_KEY }}
                 script: |
-                  sudo apt update && sudo apt install -y jq python3-pip
+                  sudo apt update && sudo apt install -y jq
+                  export KUBECONFIG=$HOME/.kube/k3s.yaml 
                   cd infra-hideyoshi.com
                   ./deploy.sh --prod
                   ./refresh.sh
