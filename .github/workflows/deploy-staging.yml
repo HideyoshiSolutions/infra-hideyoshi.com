@@ -46,7 +46,7 @@ jobs:
                 key: ${{ secrets.SSH_KEY }}
                 script: |
                   sudo apt update && sudo apt install -y jq
-                  export KUBECONFIG=$HOME/.kube/k3s.yaml 
+                  source ~/.profile
                   cd infra-hideyoshi.com
                   ./deploy.sh --staging
                   ./refresh.sh
