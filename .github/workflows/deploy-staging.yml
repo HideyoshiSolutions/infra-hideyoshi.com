@@ -46,7 +46,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
-          command_timeout: 1800s
+          command_timeout: 30m
           script: |
             sudo apt update && sudo apt install -y jq
             source ~/.profile
