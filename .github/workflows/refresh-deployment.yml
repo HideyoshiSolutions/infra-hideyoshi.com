@@ -41,4 +41,4 @@ jobs:
                 script: |
                     [[ -d infra-hideyoshi.com ]] && \
                     cd infra-hideyoshi.com && \
-                    ./infra-hideyoshi.com/refresh.sh ${{ env.deployments }}
+                    ./refresh.sh ${{ env.deployments }}
