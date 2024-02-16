@@ -23,9 +23,14 @@ spec:
                           cpu: "250m"
                       limits:
                           memory: "256Mi"
-                          cpu: "250m"
+                          cpu: "750m"
                   ports:
                       - containerPort: 8070
+                  readinessProbe:
+                      httpGet:
+                          path: /health
+                          port: 8070
+                      initialDelaySeconds: 60
                   env:
                       - name: FRONTEND_PATH
                         valueFrom:
