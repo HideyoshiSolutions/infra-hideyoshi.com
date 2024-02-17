@@ -13,6 +13,8 @@ spec:
             labels:
                 app: storage-processor
         spec:
+            nodeSelector:
+                kubernetes.io/role: worker
             containers:
                 - name: storage-processor
                   image: yoshiunfriendly/storage-hideyoshi.com:latest

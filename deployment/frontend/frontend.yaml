@@ -15,6 +15,8 @@ spec:
             labels:
                 app: frontend
         spec:
+            nodeSelector:
+                kubernetes.io/role: worker
             containers:
                 - name: frontend
                   image: yoshiunfriendly/frontend-hideyoshi.com:latest
