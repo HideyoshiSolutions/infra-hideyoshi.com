@@ -19,5 +19,9 @@ spec:
             memory: "128Mi"
             cpu: "75m"
 
+    affinity:
+        nodeSelector:
+            kubernetes.io/role: master
+
     monitoring:
         enablePodMonitor: true
