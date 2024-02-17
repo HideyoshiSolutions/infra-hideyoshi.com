@@ -21,7 +21,7 @@ spec:
 
     affinity:
         nodeSelector:
-            kubernetes.io/role: master
+            node_type: master
 
     monitoring:
         enablePodMonitor: true
