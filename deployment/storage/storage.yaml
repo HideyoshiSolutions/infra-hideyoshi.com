@@ -14,18 +14,18 @@ spec:
                 app: storage
         spec:
             nodeSelector:
-                kubernetes.io/role: worker
+                node_type: worker
             containers:
                 - name: storage
                   image: yoshiunfriendly/storage-hideyoshi.com:latest
                   imagePullPolicy: "Always"
                   resources:
-                    requests:
-                      memory: "256Mi"
-                      cpu: "250m"
-                    limits:
-                      memory: "256Mi"
-                      cpu: "250m"
+                      requests:
+                          memory: "256Mi"
+                          cpu: "250m"
+                      limits:
+                          memory: "256Mi"
+                          cpu: "250m"
                   ports:
                       - containerPort: 8000
                   readinessProbe:

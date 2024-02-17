@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    namespace: portfolio 
+    namespace: portfolio
     name: frontend-deployment
     labels:
         app: frontend
@@ -16,18 +16,18 @@ spec:
                 app: frontend
         spec:
             nodeSelector:
-                kubernetes.io/role: worker
+                node_type: worker
             containers:
                 - name: frontend
                   image: yoshiunfriendly/frontend-hideyoshi.com:latest
                   imagePullPolicy: "Always"
                   resources:
-                    requests:
-                      memory: "256Mi"
-                      cpu: "250m"
-                    limits:
-                      memory: "256Mi"
-                      cpu: "250m"
+                      requests:
+                          memory: "256Mi"
+                          cpu: "250m"
+                      limits:
+                          memory: "256Mi"
+                          cpu: "250m"
                   ports:
                       - containerPort: 5000
                   env:
@@ -53,7 +53,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    namespace: portfolio 
+    namespace: portfolio
     name: frontend-service
 spec:
     selector:
