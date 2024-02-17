@@ -13,6 +13,8 @@ spec:
             labels:
                 app: backend
         spec:
+            nodeSelector:
+                kubernetes.io/role: worker
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
