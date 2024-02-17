@@ -14,7 +14,7 @@ spec:
                 app: backend
         spec:
             nodeSelector:
-                kubernetes.io/role: worker
+                node_type: worker
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
