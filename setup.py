@@ -9,12 +9,13 @@ import os
 
 
 def write_template(template: str, output: str):
+    os.makedirs(os.path.dirname(output), exist_ok=True)
     with open(template, 'r') as template,\
          open(output, 'w') as output:
         output.write(envsubst(template.read()))
 
 
-def configure_templates(environment: str):
+def configure_env_variables(environment: str):
     if not environment in ("prod", "staging", "local"):
         raise ValueError("Invalid Environment Selected")
 
@@ -22,25 +23,40 @@ def configure_templates(environment: str):
         case "local":
             DOMAIN = "local.hideyoshi.com.br"
             API_DOMAIN = "api.local.hideyoshi.com.br"
+            MASTER_NODE_LABEL = "minikube.k8s.io/name: minikube"
+            WORKER_NODE_LABEL = "minikube.k8s.io/name: minikube"
+            
         case "staging":
             DOMAIN = "staging.hideyoshi.com.br"
             API_DOMAIN = "api.staging.hideyoshi.com.br"
+            MASTER_NODE_LABEL = "node_type: master"
+            WORKER_NODE_LABEL = "node_type: worker"
+
         case _:
             DOMAIN = "hideyoshi.com.br"
             API_DOMAIN = "api.hideyoshi.com.br"
+            MASTER_NODE_LABEL = "node_type: master"
+            WORKER_NODE_LABEL = "node_type: worker"
 
     os.environ["DOMAIN"] = DOMAIN
     os.environ["API_DOMAIN"] = API_DOMAIN
+    os.environ["MASTER_NODE_LABEL"] = MASTER_NODE_LABEL
+    os.environ["WORKER_NODE_LABEL"] = WORKER_NODE_LABEL
 
-    write_template(
-        "template/cert-manager/cert-manager-certificate.template.yaml", 
-        "deployment/cert-manager/cert-manager-certificate.yaml"
-    )
 
-    write_template(
-        "template/nginx-ingress/nginx-ingress-root.yaml",
-        "deployment/nginx-ingress/nginx-ingress-root.yaml"
-    )
+def configure_templates(environment: str):
+    MAPPINS = [
+        {"template": "template/cert-manager/cert-manager-certificate.template.yaml", "output": "deployment/cert-manager/cert-manager-certificate.yaml"},
+        {"template": "template/nginx-ingress/nginx-ingress-root.template.yaml", "output": "deployment/nginx-ingress/nginx-ingress-root.yaml"},
+        {"template": "template/postgres/cn-cluster.template.yaml", "output": "deployment/postgres/cn-cluster.yaml"},
+        {"template": "template/frontend/frontend.template.yaml", "output": "deployment/frontend/frontend.yaml"},
+        {"template": "template/backend/backend.template.yaml", "output": "deployment/backend/backend.yaml"},
+        {"template": "template/storage/storage-processor.template.yaml", "output": "deployment/storage/storage-processor.yaml"},
+        {"template": "template/storage/storage.template.yaml", "output": "deployment/storage/storage.yaml"},
+    ]
+    
+    for mapping in MAPPINS:
+        write_template(mapping["template"], mapping["output"])
 
 
 def validate_backend_secret(secret: str):
@@ -166,6 +182,8 @@ def main(file, environment):
     validate_env(env)
 
     write_secrets_to_file(env)
+
+    configure_env_variables(environment)
 
     configure_templates(environment)
 

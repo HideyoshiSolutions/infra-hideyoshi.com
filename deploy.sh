@@ -95,9 +95,7 @@ function application_deploy() {
         -n portfolio
 
     kubectl apply -f \
-        ./deployment/nginx-ingress/nginx-ingress-root.yaml
-    kubectl apply -f \
-        ./deployment/nginx-ingress/nginx-ingress-api.yaml
+        ./deployment/nginx-ingress
 
 }
 

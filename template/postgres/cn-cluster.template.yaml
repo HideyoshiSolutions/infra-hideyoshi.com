@@ -21,7 +21,7 @@ spec:
 
     affinity:
         nodeSelector:
-            node_type: master
+            ${MASTER_NODE_LABEL}
 
     monitoring:
         enablePodMonitor: true

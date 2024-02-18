@@ -15,8 +15,7 @@ spec:
             labels:
                 app: frontend
         spec:
-            nodeSelector:
-                node_type: worker
+            nodeSelector: ${WORKER_NODE_LABEL}
             containers:
                 - name: frontend
                   image: yoshiunfriendly/frontend-hideyoshi.com:latest
