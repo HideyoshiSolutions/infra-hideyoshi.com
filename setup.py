@@ -2,16 +2,10 @@ from base64 import b64decode, b64encode
 from dotenv import load_dotenv
 from envsubst import envsubst
 from pathlib import Path, PosixPath
-from typing import Generator
 import argparse
 import warnings
 import json
 import os
-
-
-def unpack_list_dict(dl: list[dict]) -> Generator[tuple[str, str], None, None]:
-    for d in dl:
-        yield tuple(d.values())
 
 
 def write_template(template: str, output: str):
@@ -60,8 +54,8 @@ def configure_templates(environment: str):
         {"template": "template/storage/storage.template.yaml", "output": "deployment/storage/storage.yaml"},
     ]
     
-    for template, output in unpack_list_dict(MAPPINS):
-        write_template(template, output)
+    for mapping in MAPPINS:
+        write_template(mapping["template"], mapping["output"])
 
 
 def validate_backend_secret(secret: str):
