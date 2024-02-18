@@ -9,6 +9,7 @@ import os
 
 
 def write_template(template: str, output: str):
+    os.makedirs(os.path.dirname(output), exist_ok=True)
     with open(template, 'r') as template,\
          open(output, 'w') as output:
         output.write(envsubst(template.read()))
