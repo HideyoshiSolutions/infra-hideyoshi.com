@@ -1,17 +1,18 @@
-.env*
-
-.secret*
-
 .idea/
-
 .vscode/
+
+.env*
+.secret*
 
 **/*.json
 !**/*.example.json
+*.patch
 
 **/cert-manager-certificate.yaml
-
-**/deployment/nginx-ingress/nginx-ingress-api.yaml
-
-**/deployment/nginx-ingress/nginx-ingress-root.yaml
-*.patch
+**/nginx-ingress-api.yaml
+**/nginx-ingress-root.yaml
+**/backend.yaml
+**/frontend.yaml
+**/storage.yaml
+**/storage-processor.yaml
+**/cn-cluster.yaml

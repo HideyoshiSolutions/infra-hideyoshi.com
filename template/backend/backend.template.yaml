@@ -14,7 +14,7 @@ spec:
                 app: backend
         spec:
             nodeSelector:
-                node_type: worker
+                ${WORKER_NODE_LABEL}
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com

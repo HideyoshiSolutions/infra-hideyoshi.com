@@ -14,7 +14,7 @@ spec:
                 app: storage
         spec:
             nodeSelector:
-                node_type: worker
+                ${WORKER_NODE_LABEL}
             containers:
                 - name: storage
                   image: yoshiunfriendly/storage-hideyoshi.com:latest
