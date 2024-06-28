@@ -26,8 +26,8 @@ spec:
                           memory: "256Mi"
                           cpu: "250m"
                       limits:
-                          memory: "512Mi"
-                          cpu: "500m"
+                          memory: "256Mi"
+                          cpu: "250m"
                   env:
                       - name: REDIS_BASE_URL
                         valueFrom:
