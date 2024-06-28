@@ -18,7 +18,6 @@ spec:
             containers:
                 - name: storage-processor
                   image: yoshiunfriendly/storage-hideyoshi.com:latest
-                  command: ["./run-queue.sh"]
                   args: ["-q"]
                   imagePullPolicy: "Always"
                   resources:
@@ -29,7 +28,25 @@ spec:
                           memory: "256Mi"
                           cpu: "250m"
                   env:
-                      - name: REDIS_BASE_URL
+                      - name: ALLOWED_ORIGINS
+                        valueFrom:
+                            secretKeyRef:
+                                name: frontend-secret
+                                key: backendUrl
+
+                      - name: EXPIRES_IN
+                        valueFrom:
+                            secretKeyRef:
+                                name: backend-secret
+                                key: accessTokenDuration
+
+                      - name: SERVER_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: storage-config
+                                key: storage_port
+
+                      - name: REDIS_HOST
                         valueFrom:
                             configMapKeyRef:
                                 name: redis-config
@@ -46,9 +63,6 @@ spec:
                             secretKeyRef:
                                 name: redis-secret
                                 key: redisPassword
-
-                      - name: REDIS_URL
-                        value: "redis://:$(REDIS_PASSWORD)@$(REDIS_BASE_URL):$(REDIS_PORT)/rq"
 
                       - name: STORAGE_TYPE
                         valueFrom:

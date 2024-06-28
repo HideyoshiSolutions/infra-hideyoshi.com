@@ -4,7 +4,7 @@ metadata:
     name: postgres-cn-cluster
     namespace: portfolio
 spec:
-    instances: 3
+    instances: 1
     primaryUpdateStrategy: unsupervised
     imageName: ghcr.io/cloudnative-pg/postgresql:14.10-18
 
