@@ -13,8 +13,6 @@ spec:
             labels:
                 app: storage-processor
         spec:
-            nodeSelector: 
-                ${WORKER_NODE_LABEL}
             containers:
                 - name: storage-processor
                   image: yoshiunfriendly/storage-hideyoshi.com:latest
