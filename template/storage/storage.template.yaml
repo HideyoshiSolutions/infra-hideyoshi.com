@@ -13,19 +13,17 @@ spec:
             labels:
                 app: storage
         spec:
-            nodeSelector:
-                ${WORKER_NODE_LABEL}
             containers:
                 - name: storage
                   image: yoshiunfriendly/storage-hideyoshi.com:latest
                   imagePullPolicy: "Always"
                   resources:
                       requests:
-                          memory: "256Mi"
-                          cpu: "250m"
+                          memory: "128Mi"
+                          cpu: "100m"
                       limits:
-                          memory: "256Mi"
-                          cpu: "250m"
+                          memory: "128Mi"
+                          cpu: "100m"
                   ports:
                       - containerPort: 8000
                   readinessProbe:

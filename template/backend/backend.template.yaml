@@ -13,8 +13,6 @@ spec:
             labels:
                 app: backend
         spec:
-            nodeSelector:
-                ${WORKER_NODE_LABEL}
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
@@ -25,7 +23,7 @@ spec:
                           cpu: "250m"
                       limits:
                           memory: "256Mi"
-                          cpu: "500m"
+                          cpu: "250m"
                   ports:
                       - containerPort: 8070
                   readinessProbe:

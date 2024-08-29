@@ -15,19 +15,17 @@ spec:
             labels:
                 app: frontend
         spec:
-            nodeSelector: 
-                ${WORKER_NODE_LABEL}
             containers:
                 - name: frontend
                   image: yoshiunfriendly/frontend-hideyoshi.com:latest
                   imagePullPolicy: "Always"
                   resources:
                       requests:
-                          memory: "256Mi"
-                          cpu: "250m"
+                          memory: "128Mi"
+                          cpu: "75m"
                       limits:
-                          memory: "256Mi"
-                          cpu: "250m"
+                          memory: "128Mi"
+                          cpu: "75m"
                   ports:
                       - containerPort: 5000
                   env:

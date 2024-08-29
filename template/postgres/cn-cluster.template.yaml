@@ -19,9 +19,5 @@ spec:
             memory: "128Mi"
             cpu: "75m"
 
-    affinity:
-        nodeSelector:
-            ${MASTER_NODE_LABEL}
-
     monitoring:
         enablePodMonitor: true

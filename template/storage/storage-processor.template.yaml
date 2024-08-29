@@ -13,8 +13,6 @@ spec:
             labels:
                 app: storage-processor
         spec:
-            nodeSelector: 
-                ${WORKER_NODE_LABEL}
             containers:
                 - name: storage-processor
                   image: yoshiunfriendly/storage-hideyoshi.com:latest
@@ -22,11 +20,11 @@ spec:
                   imagePullPolicy: "Always"
                   resources:
                       requests:
-                          memory: "256Mi"
-                          cpu: "250m"
+                          memory: "128Mi"
+                          cpu: "75m"
                       limits:
-                          memory: "256Mi"
-                          cpu: "250m"
+                          memory: "128Mi"
+                          cpu: "75m"
                   env:
                       - name: ALLOWED_ORIGINS
                         valueFrom:
