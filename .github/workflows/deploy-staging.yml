@@ -49,6 +49,7 @@ jobs:
           command_timeout: 30m
           script: |
             sudo apt update && sudo apt install -y jq
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
             source ~/.profile
             cd infra-hideyoshi.com
             ./deploy.sh --staging
