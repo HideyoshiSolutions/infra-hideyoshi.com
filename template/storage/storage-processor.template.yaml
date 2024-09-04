@@ -25,6 +25,18 @@ spec:
                       limits:
                           memory: "128Mi"
                           cpu: "75m"
+                  readinessProbe:
+                      exec:
+                          command: 
+                              - touch
+                              - /tmp/healthy  
+                      initialDelaySeconds: 30
+                  livenessProbe:
+                      exec:
+                          command: 
+                              - touch
+                              - /tmp/healthy  
+                      initialDelaySeconds: 30
                   env:
                       - name: ALLOWED_ORIGINS
                         valueFrom:
