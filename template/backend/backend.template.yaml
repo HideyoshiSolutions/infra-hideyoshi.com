@@ -30,12 +30,12 @@ spec:
                       httpGet:
                           path: /health
                           port: 8070
-                      initialDelaySeconds: 60
+                      initialDelaySeconds: 240
                   livenessProbe:
                       httpGet:
                           path: /health
                           port: 8070
-                      initialDelaySeconds: 60
+                      initialDelaySeconds: 240
                   env:
                       - name: FRONTEND_PATH
                         valueFrom:
