@@ -13,6 +13,8 @@ spec:
             labels:
                 app: backend
         spec:
+            nodeSelector:
+                ${WORKER_NODE_LABEL}
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
