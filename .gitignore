@@ -2,6 +2,7 @@
 .vscode/
 
 .env*
+!.env.example
 .secret*
 
 **/*.json
