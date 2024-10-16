@@ -15,6 +15,18 @@ spec:
         spec:
             nodeSelector:
                 ${WORKER_NODE_LABEL}
+            initContainers:
+                - name: wait-storage-init
+                  image: busybox:latest
+                  args:
+                      - /bin/sh
+                      - -c
+                      - >
+                          set -x;
+                          while [ $(curl -sw '%{http_code}' "storage-service:8070/health" -o /dev/null) -ne 200 ]; do
+                          sleep 15;
+                          done
+
             containers:
                 - name: backend
                   image: yoshiunfriendly/backend-hideyoshi.com
@@ -32,7 +44,7 @@ spec:
                       httpGet:
                           path: /health
                           port: 8070
-                      initialDelaySeconds: 120
+                      initialDelaySeconds: 60
                   livenessProbe:
                       httpGet:
                           path: /health

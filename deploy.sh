@@ -25,9 +25,17 @@ apply_template() {
 
 
 apply_deployment() {
-    for file in $(find $1 -type f); do
+    deployment_name=$1
+    deployment_files=$2
+
+    for file in $(find $2 -type f); do
         apply_template $file
     done
+
+    kubectl wait --for=condition=available \
+        --timeout=600s \
+        deployment.apps/${deployment_name} \
+        -n ${KUBE_NAMESPACE}
 }
 
 
@@ -118,13 +126,13 @@ deploy_kubernetes() {
 
     configure_postgres
 
-    apply_deployment "./template/redis"
+    apply_deployment "redis-deployment" "./template/redis"
 
-    apply_deployment "./template/frontend"
+    apply_deployment "storage-deployment" "./template/storage"
 
-    apply_deployment "./template/storage"
+    apply_deployment "backend-deployment" "./template/backend"
 
-    apply_deployment "./template/backend"
+    apply_deployment "frontend-deployment" "./template/frontend"
 
     configure_ingress
 
