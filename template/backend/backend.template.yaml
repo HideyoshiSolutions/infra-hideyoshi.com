@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    namespace: portfolio
+    namespace: ${KUBE_NAMESPACE}
     name: backend-deployment
 spec:
     replicas: 1
@@ -43,49 +43,49 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: frontend-secret
-                                key: frontendPath
+                                key: frontendUrl
 
                       - name: TOKEN_SECRET
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: tokenSecret
+                                key: backendTokenSecret
 
                       - name: ACCESS_TOKEN_DURATION
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: accessTokenDuration
+                                key: backendAccessTokenDuration
 
                       - name: REFRESH_TOKEN_DURATION
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: refreshTokenDuration
+                                key: backendRefreshTokenDuration
 
                       - name: DEFAULT_USER_FULLNAME
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: defaultUserFullName
+                                key: backendDefaultUserFullName
 
                       - name: DEFAULT_USER_EMAIL
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: defaultUserEmail
+                                key: backendDefaultUserEmail
 
                       - name: DEFAULT_USER_USERNAME
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: defaultUserUsername
+                                key: backendDefaultUserUsername
 
                       - name: DEFAULT_USER_PASSWORD
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: defaultUserPassword
+                                key: backendDefaultUserPassword
 
                       - name: PORT
                         valueFrom:
@@ -97,37 +97,37 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: googleClientId
+                                key: backendGoogleClientId
 
                       - name: GOOGLE_CLIENT_SECRET
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: googleClientSecret
+                                key: backendGoogleClientSecret
 
                       - name: GOOGLE_REDIRECT_URL
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: googleRedirectUrl
+                                key: backendGoogleRedirectUrl
 
                       - name: GITHUB_CLIENT_ID
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: githubClientId
+                                key: backendGithubClientId
 
                       - name: GITHUB_CLIENT_SECRET
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: githubClientSecret
+                                key: backendGithubClientSecret
 
                       - name: GITHUB_REDIRECT_URL
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: githubRedirectUrl
+                                key: backendGithubRedirectUrl
 
                       - name: POSTGRES_URL
                         valueFrom:
@@ -193,7 +193,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    namespace: portfolio
+    namespace: ${KUBE_NAMESPACE}
     name: backend-service
 spec:
     selector:

@@ -2,7 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
     name: postgres-cn-cluster
-    namespace: portfolio
+    namespace: ${KUBE_NAMESPACE} 
 spec:
     instances: 1
     primaryUpdateStrategy: unsupervised

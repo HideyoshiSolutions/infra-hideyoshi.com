@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: portfolio
+  namespace: ${KUBE_NAMESPACE}
   name: nginx-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -10,11 +10,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - ${DOMAIN}
-        - ${API_DOMAIN}
+        - ${KUBE_DOMAIN}
+        - ${KUBE_API_DOMAIN}
       secretName: letsencrypt-cluster-certificate-tls
   rules:
-    - host: ${DOMAIN}
+    - host: ${KUBE_DOMAIN}
       http:
         paths:
           - path: /
@@ -24,7 +24,7 @@ spec:
                 name: frontend-service
                 port:
                   number: 5000
-    - host: ${API_DOMAIN}
+    - host: ${KUBE_API_DOMAIN}
       http:
         paths:
           - path: /
