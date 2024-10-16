@@ -32,7 +32,7 @@ apply_deployment() {
 
 
 configure_nginx_minikube() {
-    if [[ $1 == "true" ]]; then
+    if [[ $setup_minikube == "true" ]]; then
         minikube start --driver kvm2 --cpus 2 --memory 4Gib
     fi
 
@@ -88,7 +88,7 @@ configure_postgres() {
 configure_ingress() {
     apply_template "./template/nginx-ingress/nginx-ingress-root.template.yaml"
 
-    if [[ $1 == "local" ]]; then
+    if [[ $environment == "local" ]]; then
         apply_template "./template/cert-manager/cert-manager-issuer-dev.yaml"
     else
         apply_template "./template/cert-manager/cert-manager-issuer.yaml"
@@ -99,8 +99,8 @@ configure_ingress() {
 
 
 deploy_kubernetes() {
-    if [[ $1 == "local" ]]; then
-        configure_nginx_minikube $2
+    if [[ $environment == "local" ]]; then
+        configure_nginx_minikube
     else 
         configure_nginx_ingress
     fi
@@ -126,7 +126,7 @@ deploy_kubernetes() {
 
     apply_deployment "./template/backend"
 
-    configure_ingress $1
+    configure_ingress
 }
 
 
@@ -140,23 +140,29 @@ main() {
 environment="remote"
 setup_minikube="false"
 
-while getopts ":f:e:m:h:" opt; do
+while getopts ":f:e:mh" opt; do
     case ${opt} in
-        f)
+        f )
             echo "Reading env file: ${OPTARG}"
             read_env_file ${OPTARG}
             ;;
-        e)
+        e )
             [[ ${OPTARG} == "local" ]] && environment="local"
+            echo "Environment: ${OPTARG}"
             ;;
-        m)
+        m )
             setup_minikube="true"
+            echo "Setting up minikube"
+            ;;
+        h )
+            echo "Usage: deploy.sh [-f <env_file>] [-e <environment>] [-m <minikube>]"
+            exit 0
             ;;
         *)
-            echo "Usage: deploy.sh [-f <env_file>] [-e <environment>] [-m <minikube>]"
+            echo "Invalid option: $OPTARG"
             exit 1
             ;;
     esac
 done
 
-main $environment $setup_minikube
+main
