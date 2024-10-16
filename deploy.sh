@@ -127,6 +127,10 @@ deploy_kubernetes() {
     apply_deployment "./template/backend"
 
     configure_ingress
+
+    if [[ $environment == "local" ]]; then
+        echo "Minikube IP: http://$(minikube ip)"
+    fi
 }
 
 
