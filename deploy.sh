@@ -149,8 +149,13 @@ main() {
 }
 
 
+refresh() {
+}
+
+
 environment="remote"
 setup_minikube="false"
+execution_mode="deploy"
 
 while getopts ":f:e:mh" opt; do
     case ${opt} in
@@ -170,6 +175,10 @@ while getopts ":f:e:mh" opt; do
             echo "Usage: deploy.sh [-f <env_file>] [-e <environment>] [-m <minikube>]"
             exit 0
             ;;
+        r )
+            echo "Executing Refresh"
+            execution_mode="refresh"
+            ;;
         *)
             echo "Invalid option: $OPTARG"
             exit 1
@@ -177,4 +186,11 @@ while getopts ":f:e:mh" opt; do
     esac
 done
 
-main
+if [[ $execution_mode == "deploy" ]]; then
+    main
+elif [[ $execution_mode == "refresh" ]]; then
+    refresh
+else
+    echo "Invalid execution mode: $execution_mode"
+    exit 1
+fi

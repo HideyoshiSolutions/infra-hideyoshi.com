@@ -1,0 +1,30 @@
+name: remote ssh command
+
+on:
+    repository_dispatch:
+        types: [deploy-prod]
+    push:
+        branches:
+            - main
+            - staging
+
+jobs:
+    build:
+        name: Deploy to Cluster
+        environment: ${{ github.ref_name == 'main' && 'prod' || 'staging' }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: Writing Env File
+              run: |
+                  echo "${{ secrets.ENV_FILE }}" | base64 -d > .env
+            - name: Set Kubernetes Context
+              uses: azure/k8s-set-context@v1
+              with:
+                  method: kubeconfig
+                  kubeconfig: ${{ secrets.KUBE_CONFIG }}
+            - name: Execute deploy
+              run: |
+                  ./deploy.sh -f .env
