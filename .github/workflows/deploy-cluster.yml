@@ -9,7 +9,7 @@ on:
             - staging
 
 jobs:
-    build:
+    deploy:
         name: Deploy to Cluster
         environment: ${{ github.ref_name == 'main' && 'prod' || 'staging' }}
         runs-on: ubuntu-latest

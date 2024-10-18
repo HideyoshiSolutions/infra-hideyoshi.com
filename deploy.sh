@@ -150,6 +150,18 @@ main() {
 
 
 refresh() {
+    deployments=$1
+    if [[ -z $1 ]]; then
+        deployments=(
+            "redis-deployment"
+            "storage-deployment"
+            "backend-deployment"
+            "frontend-deployment"
+        )
+    fi
+    for deployment in ${deployments[@]}; do
+        kubectl rollout restart deployment/${deployment} -n ${KUBE_NAMESPACE}
+    done
 }
 
 
@@ -157,7 +169,7 @@ environment="remote"
 setup_minikube="false"
 execution_mode="deploy"
 
-while getopts ":f:e:mh" opt; do
+while getopts ":f:e:mrh" opt; do
     case ${opt} in
         f )
             echo "Reading env file: ${OPTARG}"
@@ -178,6 +190,12 @@ while getopts ":f:e:mh" opt; do
         r )
             echo "Executing Refresh"
             execution_mode="refresh"
+
+            eval nextopt=\${$OPTIND}
+            if [[ -n $nextopt && $nextopt != -* ]]; then
+                OPTIND=$((OPTIND + 1))
+                refresh_deployments=($nextopt)
+            fi
             ;;
         *)
             echo "Invalid option: $OPTARG"
@@ -189,7 +207,7 @@ done
 if [[ $execution_mode == "deploy" ]]; then
     main
 elif [[ $execution_mode == "refresh" ]]; then
-    refresh
+    [[ -z $refresh_deployments ]] && refresh || refresh $refresh_deployments
 else
     echo "Invalid execution mode: $execution_mode"
     exit 1
