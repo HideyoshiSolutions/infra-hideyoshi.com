@@ -1,6 +1,33 @@
 #!/bin/sh
 
 
+validate_dependencies() {
+    if ! command -v kubectl &> /dev/null; then
+        echo "kubectl could not be found"
+        exit 1
+    fi
+
+    if ! command -v helm &> /dev/null; then
+        echo "helm could not be found"
+        exit 1
+    fi
+
+    if ! command -v envsubst &> /dev/null; then
+        echo "envsubst could not be found"
+        exit 1
+    fi
+
+    if [[ $environment == "local" ]]; then
+        if ! command -v minikube &> /dev/null; then
+            echo "minikube could not be found"
+            exit 1
+        fi
+    fi
+
+    echo "Dependencies validated"  
+}
+
+
 read_env_file() {
     if [ -f $1 ]; then
         set -a && source $1 && set +a;
@@ -203,6 +230,8 @@ while getopts ":f:e:mrh" opt; do
             ;;
     esac
 done
+
+validate_dependencies
 
 if [[ $execution_mode == "deploy" ]]; then
     main
