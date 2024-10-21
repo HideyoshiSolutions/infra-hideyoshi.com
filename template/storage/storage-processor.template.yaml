@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    namespace: portfolio
+    namespace: ${KUBE_NAMESPACE}
     name: storage-processor-deployment
 spec:
     replicas: 1
@@ -44,13 +44,13 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: frontend-secret
-                                key: backendUrl
+                                key: frontendBackendUrl
 
                       - name: EXPIRES_IN
                         valueFrom:
                             secretKeyRef:
                                 name: backend-secret
-                                key: accessTokenDuration
+                                key: backendAccessTokenDuration
 
                       - name: SERVER_PORT
                         valueFrom:
@@ -86,34 +86,34 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: awsAccessKeyId
+                                key: storageAwsAccessKeyId
 
                       - name: AWS_SECRET_ACCESS_KEY
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: awsSecretAccessKey
+                                key: storageAwsSecretAccessKey
 
                       - name: AWS_REGION_NAME
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: awsRegion
+                                key: storageAwsRegion
 
                       - name: AWS_BUCKET_NAME
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: awsBucket
+                                key: storageAwsBucket
 
                       - name: VIRUS_CHECKER_TYPE
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: virusCheckerType
+                                key: storageVirusCheckerType
 
                       - name: VIRUS_CHECKER_API_KEY
                         valueFrom:
                             secretKeyRef:
                                 name: storage-secret
-                                key: virusCheckerApiKey
+                                key: storageVirusCheckerApiKey

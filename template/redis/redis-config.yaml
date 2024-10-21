@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    namespace: portfolio 
+    namespace: ${KUBE_NAMESPACE}  
     name: redis-config
 data:
     redis-url: redis-service

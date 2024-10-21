@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    namespace: portfolio
+    namespace: ${KUBE_NAMESPACE}  
     name: frontend-deployment
     labels:
         app: frontend
@@ -17,6 +17,17 @@ spec:
         spec:
             nodeSelector: 
                 ${WORKER_NODE_LABEL}
+            initContainers:
+                - name: wait-backend-init
+                  image: busybox:latest
+                  args:
+                      - /bin/sh
+                      - -c
+                      - >
+                          set -x;
+                          while [ $(curl -sw '%{http_code}' "backend-service:8000/health" -o /dev/null) -ne 200 ]; do
+                          sleep 15;
+                          done
             containers:
                 - name: frontend
                   image: yoshiunfriendly/frontend-hideyoshi.com:latest
@@ -47,23 +58,23 @@ spec:
                         valueFrom:
                             secretKeyRef:
                                 name: frontend-secret
-                                key: backendUrl
+                                key: frontendBackendUrl
                       - name: BACKEND_OAUTH_URL
                         valueFrom:
                             secretKeyRef:
                                 name: frontend-secret
-                                key: backendOAuthUrl
+                                key: frontendOAuthUrl
                       - name: GITHUB_USER
                         valueFrom:
                             secretKeyRef:
                                 name: frontend-secret
-                                key: githubUser
+                                key: frontendGithubUser
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-    namespace: portfolio
+    namespace: ${KUBE_NAMESPACE}  
     name: frontend-service
 spec:
     selector:
