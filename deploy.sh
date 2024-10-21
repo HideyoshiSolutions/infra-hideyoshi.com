@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 validate_dependencies() {
