@@ -9,6 +9,8 @@
 !**/*.example.json
 *.patch
 
+*KUBECONFIG*
+
 **/cert-manager-certificate.yaml
 **/nginx-ingress-api.yaml
 **/nginx-ingress-root.yaml
