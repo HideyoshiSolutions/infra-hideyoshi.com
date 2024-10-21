@@ -5,40 +5,32 @@ on:
         types: [refresh-deployments]
 
 jobs:
-    refresh-deployments:
-        name: Refresh deployments
+    refresh_deployment:
+        name: Refresh Kubernetes Deployments
         environment: prod
         runs-on: ubuntu-latest
+        timeout-minutes: 30
+        env:
+            deployments: ${{ github.event.client_payload.deployments }}
+
         steps:
-            - name: Checkout
-              uses: actions/checkout@v3
+            - uses: actions/checkout@v4
+            - name: Writing Env File
+              run: |
+                  echo "${{ secrets.ENV_FILE }}" | base64 -d > .env
+            
+            - name: Set Kubernetes Context
+              uses: azure/k8s-set-context@v1
+              with:
+                  method: kubeconfig
+                  kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
-            - name: Executing Remote Commands - Refresh All Deployments
-              env:
-                deployments: ${{ github.event.client_payload.deployments }}
+            - name: Refresh Deployments
               if: ${{ env.deployments == '' }}
-              uses: appleboy/ssh-action@master
-              with:
-                host: ${{ secrets.SSH_HOST }}
-                username: ${{ secrets.SSH_USER }}
-                port: ${{ secrets.SSH_PORT }}
-                key: ${{ secrets.SSH_KEY }}
-                script: |
-                    [[ -d infra-hideyoshi.com ]] && \
-                    cd infra-hideyoshi.com && \
-                    ./refresh.sh 
+              run: |
+                  ./deploy.sh -f .env -r
 
-            - name: Executing Remote Commands - Refresh Specific Deployments
-              env:
-                deployments: ${{ github.event.client_payload.deployments }}
+            - name: Refresh Specific Deployments
               if: ${{ env.deployments != '' }}
-              uses: appleboy/ssh-action@master
-              with:
-                host: ${{ secrets.SSH_HOST }}
-                username: ${{ secrets.SSH_USER }}
-                port: ${{ secrets.SSH_PORT }}
-                key: ${{ secrets.SSH_KEY }}
-                script: |
-                    [[ -d infra-hideyoshi.com ]] && \
-                    cd infra-hideyoshi.com && \
-                    ./refresh.sh ${{ env.deployments }}
+              run: |
+                  ./deploy.sh -f .env -r ${{ env.deployments }}

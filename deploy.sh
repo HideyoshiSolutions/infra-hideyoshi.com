@@ -1,21 +1,82 @@
-#!/bin/bash
+#!/bin/sh
 
-function check_for_dependencies() {
-    if ! command -v kubectl &>/dev/null; then
+
+validate_dependencies() {
+    if ! command -v kubectl &> /dev/null; then
         echo "kubectl could not be found"
         exit 1
     fi
-    if ! command -v jq &>/dev/null; then
-        echo "jq could not be found"
-        exit 1
-    fi
-    if ! command -v helm &>/dev/null; then
+
+    if ! command -v helm &> /dev/null; then
         echo "helm could not be found"
         exit 1
     fi
+
+    if ! command -v envsubst &> /dev/null; then
+        echo "envsubst could not be found"
+        exit 1
+    fi
+
+    if [[ $environment == "local" ]]; then
+        if ! command -v minikube &> /dev/null; then
+            echo "minikube could not be found"
+            exit 1
+        fi
+    fi
+
+    echo "Dependencies validated"  
 }
 
-function configure_nginx_ingress() {
+
+read_env_file() {
+    if [ -f $1 ]; then
+        set -a && source $1 && set +a;
+    fi
+}
+
+
+build_secret_envs() {
+    for i in $(env | grep -E '^KUBE_[a-zA-Z_][a-zA-Z0-9_]*=' | cut -d= -f1); do
+        eval "export ${i}_B64=$(echo -n ${!i} | base64 -w0)"
+    done
+}
+
+
+apply_template() {
+    echo -e "\n\n----------------------------------------------------\n"
+    echo -e "Applying: $1\n"
+    echo -e "----------------------------------------------------\n\n\n"
+
+    envsubst < $1 | kubectl apply -f -
+}
+
+
+apply_deployment() {
+    deployment_name=$1
+    deployment_files=$2
+
+    for file in $(find $2 -type f); do
+        apply_template $file
+    done
+
+    kubectl wait --for=condition=available \
+        --timeout=600s \
+        deployment.apps/${deployment_name} \
+        -n ${KUBE_NAMESPACE}
+}
+
+
+configure_nginx_minikube() {
+    if [[ $setup_minikube == "true" ]]; then
+        minikube start --driver kvm2 --cpus 2 --memory 4Gib
+    fi
+
+    minikube addons enable ingress-dns
+    minikube addons enable ingress
+}
+
+
+configure_nginx_ingress() {
     helm upgrade --install ingress-nginx ingress-nginx \
         --repo https://kubernetes.github.io/ingress-nginx \
         --namespace ingress-nginx --create-namespace
@@ -26,7 +87,8 @@ function configure_nginx_ingress() {
         --timeout=120s
 }
 
-function configure_cert_manager() {
+
+configure_cert_manager() {
     helm repo add jetstack https://charts.jetstack.io --force-update
     helm repo update
     helm install cert-manager jetstack/cert-manager \
@@ -34,121 +96,148 @@ function configure_cert_manager() {
         --create-namespace \
         --version v1.14.2 \
         --set installCRDs=true \
-        --timeout=600s
+        --timeout=600s || echo "Cert Manager already installed"
 }
 
-function configure_postgres() {
+
+configure_postgres() {
     helm repo add cnpg https://cloudnative-pg.github.io/charts
     helm upgrade --install cnpg \
-        --namespace portfolio \
+        --namespace ${KUBE_NAMESPACE} \
         --create-namespace \
         cnpg/cloudnative-pg
 
     kubectl wait --for=condition=available \
         --timeout=600s \
         deployment.apps/cnpg-cloudnative-pg \
-        -n portfolio
+        -n ${KUBE_NAMESPACE}
 
-    kubectl apply -f ./deployment/postgres/cn-cluster.yaml
+    apply_template "./template/postgres/cn-cluster.template.yaml"
     kubectl wait --for=condition=Ready \
         --timeout=600s \
         cluster/postgres-cn-cluster \
-        -n portfolio
+        -n ${KUBE_NAMESPACE}
 }
 
-function application_deploy() {
 
-    kubectl create secret generic backend-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/backendSecret.json)
+configure_ingress() {
+    apply_template "./template/nginx-ingress/nginx-ingress-root.template.yaml"
 
-    kubectl create secret generic frontend-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/frontendSecret.json)
-
-    kubectl create secret generic redis-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/redisSecret.json)
-
-    kubectl create secret generic storage-secret -n portfolio \
-        --from-env-file <(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ./deployment/secrets/storageSecret.json)
-
-    kubectl apply -f ./deployment/redis
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/redis-deployment \
-        -n portfolio
-
-    kubectl apply -f ./deployment/frontend
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/frontend-deployment \
-        -n portfolio
-
-    kubectl apply -f ./deployment/storage
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/storage-deployment \
-        -n portfolio
-
-    kubectl apply -f ./deployment/backend
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/backend-deployment \
-        -n portfolio
-
-    kubectl apply -f \
-        ./deployment/nginx-ingress
-
-}
-
-function main() {
-
-    check_for_dependencies
-
-    if [[ $1 == "--local" || $1 == "-l" ]]; then
-
-        function kubectl {
-            minikube kubectl -- $@
-        }
-
-        minikube start --driver kvm2 --cpus 2 --memory 4Gib
-        minikube addons enable ingress-dns
-        minikube addons enable ingress
-
+    if [[ $environment == "local" ]]; then
+        apply_template "./template/cert-manager/cert-manager-issuer-dev.yaml"
     else
+        apply_template "./template/cert-manager/cert-manager-issuer.yaml"
+    fi
 
+    apply_template "./template/cert-manager/cert-manager-certificate.template.yaml"
+}
+
+
+deploy_kubernetes() {
+    if [[ $environment == "local" ]]; then
+        configure_nginx_minikube
+    else 
         configure_nginx_ingress
-
     fi
 
     configure_cert_manager
 
-    kubectl apply -f ./deployment/portfolio-namespace.yaml
+    KUBE_FILES=(
+        "./template/portfolio-namespace.template.yaml"
+        "./template/portfolio-secret.template.yml"
+    )
+
+    for file in ${KUBE_FILES[@]}; do
+        apply_template $file
+    done
 
     configure_postgres
 
-    application_deploy
+    apply_deployment "redis-deployment" "./template/redis"
 
-    if [[ $1 == "--local" || $1 == "-l" ]]; then
+    apply_deployment "storage-deployment" "./template/storage"
 
-        kubectl apply -f \
-            ./deployment/cert-manager/cert-manager-issuer-dev.yaml
+    apply_deployment "backend-deployment" "./template/backend"
 
-        kubectl apply -f \
-            ./deployment/cert-manager/cert-manager-certificate.yaml
+    apply_deployment "frontend-deployment" "./template/frontend"
 
-        echo "http://$(/usr/bin/minikube ip)"
+    configure_ingress
 
-    else
-
-        kubectl apply -f \
-            ./deployment/cert-manager/cert-manager-issuer.yaml
-
-        kubectl apply -f \
-            ./deployment/cert-manager/cert-manager-certificate.yaml
-
+    if [[ $environment == "local" ]]; then
+        echo "Minikube IP: http://$(minikube ip)"
     fi
-
-    exit 0
-
 }
 
-main $1
+
+main() {
+    build_secret_envs
+
+    deploy_kubernetes $@
+}
+
+
+refresh() {
+    deployments=$1
+    if [[ -z $1 ]]; then
+        deployments=(
+            "redis-deployment"
+            "storage-deployment"
+            "backend-deployment"
+            "frontend-deployment"
+        )
+    fi
+    for deployment in ${deployments[@]}; do
+        kubectl rollout restart deployment/${deployment} -n ${KUBE_NAMESPACE}
+    done
+}
+
+
+environment="remote"
+setup_minikube="false"
+execution_mode="deploy"
+
+while getopts ":f:e:mrh" opt; do
+    case ${opt} in
+        f )
+            echo "Reading env file: ${OPTARG}"
+            read_env_file ${OPTARG}
+            ;;
+        e )
+            [[ ${OPTARG} == "local" ]] && environment="local"
+            echo "Environment: ${OPTARG}"
+            ;;
+        m )
+            setup_minikube="true"
+            echo "Setting up minikube"
+            ;;
+        h )
+            echo "Usage: deploy.sh [-f <env_file>] [-e <environment>] [-m <minikube>]"
+            exit 0
+            ;;
+        r )
+            echo "Executing Refresh"
+            execution_mode="refresh"
+
+            eval nextopt=\${$OPTIND}
+            if [[ -n $nextopt && $nextopt != -* ]]; then
+                OPTIND=$((OPTIND + 1))
+                refresh_deployments=($nextopt)
+            fi
+            ;;
+        *)
+            echo "Invalid option: $OPTARG"
+            exit 1
+            ;;
+    esac
+done
+
+validate_dependencies
+
+if [[ $execution_mode == "deploy" ]]; then
+    main
+elif [[ $execution_mode == "refresh" ]]; then
+    [[ -z $refresh_deployments ]] && refresh || refresh $refresh_deployments
+else
+    echo "Invalid execution mode: $execution_mode"
+    exit 1
+fi

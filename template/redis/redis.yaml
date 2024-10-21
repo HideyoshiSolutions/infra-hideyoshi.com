@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    namespace: portfolio 
+    namespace: ${KUBE_NAMESPACE} 
     name: redis-deployment
 spec:
     replicas: 1
@@ -15,7 +15,7 @@ spec:
         spec:
             containers:
                 - name: redis
-                  image: bitnami/redis
+                  image: bitnami/redis:6.2.16
                   imagePullPolicy: "IfNotPresent"
                   resources:
                     requests:
@@ -37,7 +37,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    namespace: portfolio 
+    namespace: ${KUBE_NAMESPACE}  
     name: redis-service
 spec:
     selector:

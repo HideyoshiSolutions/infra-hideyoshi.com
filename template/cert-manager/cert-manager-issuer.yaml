@@ -4,8 +4,8 @@ metadata:
     name: cluster-certificate-issuer
 spec:
     acme:
-        server: https://acme-v02.api.letsencrypt.org/directory
-        email: vitor.h.n.batista@gmail.com
+        server: ${KUBE_CERT_SERVER}
+        email: ${KUBE_DOMAIN_EMAIL}
         privateKeySecretRef:
             name: cluster-certificate-issuer
         solvers:
