@@ -68,7 +68,7 @@ apply_deployment() {
 
 configure_nginx_minikube() {
     if [[ $setup_minikube == "true" ]]; then
-        minikube start --driver kvm2 --cpus 2 --memory 4Gib
+        minikube start --driver kvm2 --cpus 8 --memory 8Gib
     fi
 
     minikube addons enable ingress-dns

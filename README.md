@@ -14,27 +14,22 @@ All code in this repo is distributed freely by the GPLv3 License.
 
 - Requirements:
 
-    This project requires a working kubernetes cluster, in case of a testing environment a minikube cluster will by configured for you, otherwise a kubernetes will not be configured.
-
-- Configuring Secrets:
-
-    ```
-    python -m pip install --upgrade pip pipenv
-    pipenv install
-    pipenv run python setup.py -e {{environment-option}} -f config.json
-    ```
+    This project requires a working kubernetes cluster with the following tools installed: kubectl, helm and envsubts. If running in a local environment and if minikube is preset a minikube cluster can be created.
 
 - Running Kubernetes Application:
 
     ```
-    sudo apt update && sudo apt install -y jq python3-pip
-    cd infra-hideyoshi.com
-    ./deploy.sh {{environmet-flag}}
+    ./deploy.sh [-f <env_file>] [-e <environment>] [-m]
     ```
 
-    `{{environment-flag}}` : `--local`, `--staging`, `--prod`
+- Flags:
 
-    `{{environment-option}` : `local`, `staging`, `prod`
+  - `-f`: The environment file to use. If not set the system environment variables will be used.
+
+  - `-e`: The environment to deploy. Values `[remote|local]`. Default is `remote`.
+  
+  - `-m`: If set, the minikube cluster will be used.
+
 ## Authors
 
 - [@HideyoshiNakazone](https://github.com/HideyoshiNakazone)
