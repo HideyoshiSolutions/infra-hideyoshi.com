@@ -53,13 +53,14 @@ apply_template() {
 
 apply_resource() {
     resource_name=$1
-    deployment_files=$2
+    wait_condition=$2
+    deployment_file=$3
 
-    for file in $(find $2 -type f); do
+    for file in $(find $deployment_file -type f); do
         apply_template $file
     done
 
-    kubectl wait --for=condition=available \
+    kubectl wait --for=$wait_condition \
         --timeout=600s \
         ${resource_name} \
         -n ${KUBE_NAMESPACE}
@@ -116,6 +117,11 @@ configure_postgres_cluster() {
         --namespace ${KUBE_NAMESPACE} \
         --create-namespace \
         cnpg/cloudnative-pg
+
+    kubectl wait --for=condition=available \
+        --timeout=600s \
+        deployment.apps/cnpg-cloudnative-pg \
+        -n ${KUBE_NAMESPACE}
 }
 
 
@@ -154,15 +160,15 @@ deploy_kubernetes() {
         apply_template $file
     done
 
-    apply_resource "cluster/postgres-cn-cluster" "./template/postgres"
+    apply_resource "cluster/postgres-cn-cluster" "condition=Ready" "./template/postgres"
 
-    apply_resource "deployment.apps/redis-deployment" "./template/redis"
+    apply_resource "deployment.apps/redis-deployment" "condition=available" "./template/redis"
 
-    apply_resource "deployment.apps/storage-deployment" "./template/storage"
+    apply_resource "deployment.apps/storage-deployment" "condition=available" "./template/storage"
 
-    apply_resource "deployment.apps/backend-deployment" "./template/backend"
+    apply_resource "deployment.apps/backend-deployment" "condition=available" "./template/backend"
 
-    apply_resource "deployment.apps/frontend-deployment" "./template/frontend"
+    apply_resource "deployment.apps/frontend-deployment" "condition=available" "./template/frontend"
 
     configure_ingress
 
