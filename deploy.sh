@@ -80,7 +80,8 @@ configure_descheduler() {
     helm repo add descheduler https://kubernetes-sigs.github.io/descheduler
     helm install descheduler descheduler/descheduler \
         --namespace kube-system \
-        --set policy.enabled=true
+        --set successfulJobsHistoryLimit=1 \
+        --set failedJobsHistoryLimit=1
 }
 
 
