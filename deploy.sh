@@ -68,11 +68,19 @@ apply_deployment() {
 
 configure_nginx_minikube() {
     if [[ $setup_minikube == "true" ]]; then
-        minikube start --driver kvm2 --cpus 8 --memory 8Gib
+        minikube start --driver kvm2 --cpus 4 --memory 4Gib
     fi
 
     minikube addons enable ingress-dns
     minikube addons enable ingress
+}
+
+
+configure_descheduler() {
+    helm repo add descheduler https://kubernetes-sigs.github.io/descheduler
+    helm install descheduler descheduler/descheduler \
+        --namespace kube-system \
+        --set policy.enabled=true
 }
 
 
@@ -139,6 +147,8 @@ deploy_kubernetes() {
     else 
         configure_nginx_ingress
     fi
+
+    configure_descheduler
 
     configure_cert_manager
 
