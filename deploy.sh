@@ -78,7 +78,7 @@ configure_nginx_minikube() {
 
 configure_descheduler() {
     helm repo add descheduler https://kubernetes-sigs.github.io/descheduler
-    helm install descheduler descheduler/descheduler \
+    helm upgrade --install descheduler descheduler/descheduler \
         --namespace kube-system \
         --set successfulJobsHistoryLimit=1 \
         --set failedJobsHistoryLimit=1
@@ -100,7 +100,7 @@ configure_nginx_ingress() {
 configure_cert_manager() {
     helm repo add jetstack https://charts.jetstack.io --force-update
     helm repo update
-    helm install cert-manager jetstack/cert-manager \
+    helm upgrade --install cert-manager jetstack/cert-manager \
         --namespace cert-manager \
         --create-namespace \
         --version v1.14.2 \
