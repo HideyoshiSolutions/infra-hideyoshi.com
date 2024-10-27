@@ -51,8 +51,8 @@ apply_template() {
 }
 
 
-apply_deployment() {
-    deployment_name=$1
+apply_resource() {
+    resource_name=$1
     deployment_files=$2
 
     for file in $(find $2 -type f); do
@@ -61,14 +61,14 @@ apply_deployment() {
 
     kubectl wait --for=condition=available \
         --timeout=600s \
-        deployment.apps/${deployment_name} \
+        ${resource_name} \
         -n ${KUBE_NAMESPACE}
 }
 
 
 configure_nginx_minikube() {
     if [[ $setup_minikube == "true" ]]; then
-        minikube start --driver kvm2 --cpus 4 --memory 4Gib
+        minikube start --driver kvm2 --cpus 8 --memory 8Gib
     fi
 
     minikube addons enable ingress-dns
@@ -110,23 +110,12 @@ configure_cert_manager() {
 }
 
 
-configure_postgres() {
+configure_postgres_cluster() {
     helm repo add cnpg https://cloudnative-pg.github.io/charts
     helm upgrade --install cnpg \
         --namespace ${KUBE_NAMESPACE} \
         --create-namespace \
         cnpg/cloudnative-pg
-
-    kubectl wait --for=condition=available \
-        --timeout=600s \
-        deployment.apps/cnpg-cloudnative-pg \
-        -n ${KUBE_NAMESPACE}
-
-    apply_template "./template/postgres/cn-cluster.template.yaml"
-    kubectl wait --for=condition=Ready \
-        --timeout=600s \
-        cluster/postgres-cn-cluster \
-        -n ${KUBE_NAMESPACE}
 }
 
 
@@ -154,6 +143,8 @@ deploy_kubernetes() {
 
     configure_cert_manager
 
+    configure_postgres_cluster
+
     KUBE_FILES=(
         "./template/portfolio-namespace.template.yaml"
         "./template/portfolio-secret.template.yml"
@@ -163,15 +154,15 @@ deploy_kubernetes() {
         apply_template $file
     done
 
-    configure_postgres
+    apply_resource "cluster/postgres-cn-cluster" "./template/postgres"
 
-    apply_deployment "redis-deployment" "./template/redis"
+    apply_resource "deployment.apps/redis-deployment" "./template/redis"
 
-    apply_deployment "storage-deployment" "./template/storage"
+    apply_resource "deployment.apps/storage-deployment" "./template/storage"
 
-    apply_deployment "backend-deployment" "./template/backend"
+    apply_resource "deployment.apps/backend-deployment" "./template/backend"
 
-    apply_deployment "frontend-deployment" "./template/frontend"
+    apply_resource "deployment.apps/frontend-deployment" "./template/frontend"
 
     configure_ingress
 
