@@ -81,7 +81,7 @@ configure_descheduler() {
     helm repo add descheduler https://kubernetes-sigs.github.io/descheduler
     helm upgrade --install descheduler descheduler/descheduler \
         --namespace kube-system \
-        --set schedule="*/5 * * * *" \
+        --set schedule="*/2 * * * *" \
         --set successfulJobsHistoryLimit=1 \
         --set failedJobsHistoryLimit=1
 }
