@@ -4,7 +4,7 @@ metadata:
     name: postgres-cn-cluster
     namespace: ${KUBE_NAMESPACE} 
 spec:
-    instances: 1
+    instances: 3
     primaryUpdateStrategy: unsupervised
     imageName: ghcr.io/cloudnative-pg/postgresql:14.10-18
 
@@ -21,7 +21,7 @@ spec:
 
     affinity:
         nodeSelector:
-            ${MASTER_NODE_LABEL}
+            ${WORKER_NODE_LABEL}
 
     monitoring:
         enablePodMonitor: true
