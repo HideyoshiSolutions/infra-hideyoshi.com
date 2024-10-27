@@ -23,7 +23,7 @@ spec:
                       cpu: "75m"
                     limits:
                       memory: "256Mi"
-                      cpu: "75m"
+                      cpu: "256m"
                   ports:
                       - containerPort: 6379
                   env:
