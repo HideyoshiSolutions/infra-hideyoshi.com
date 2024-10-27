@@ -18,12 +18,12 @@ jobs:
             - name: Writing Env File
               run: |
                   echo "${{ secrets.ENV_FILE }}" | base64 -d > .env
-            
+
             - name: Set Kubernetes Context
               uses: azure/k8s-set-context@v1
               with:
                   method: kubeconfig
-                  kubeconfig: ${{ secrets.KUBE_CONFIG }}
+                  kubeconfig: ${{ secrets.KUBECONFIG }}
 
             - name: Refresh Deployments
               if: ${{ env.deployments == '' }}
