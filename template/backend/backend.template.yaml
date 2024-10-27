@@ -49,7 +49,7 @@ spec:
                       httpGet:
                           path: /health
                           port: 8070
-                      initialDelaySeconds: 240
+                      initialDelaySeconds: 60
                   env:
                       - name: FRONTEND_PATH
                         valueFrom:
