@@ -15,7 +15,7 @@ spec:
         spec:
             containers:
                 - name: redis
-                  image: bitnami/redis:6.2.16
+                  image: bitnami/valkey:8.0.2
                   imagePullPolicy: "IfNotPresent"
                   resources:
                     requests:
@@ -27,7 +27,7 @@ spec:
                   ports:
                       - containerPort: 6379
                   env:
-                      - name: REDIS_PASSWORD
+                      - name: VALKEY_PASSWORD
                         valueFrom:
                             secretKeyRef:
                                 name: redis-secret
