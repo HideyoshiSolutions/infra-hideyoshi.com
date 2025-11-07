@@ -27,13 +27,18 @@ kubectl create namespace cert-manager \
 kubectl apply -f manifest/charts/cert-manager
 
 
-### configures docker registry secret ###
+### set application namespaces and configures docker registry secret ###
 if [[ -f $HOME/.docker/config.json ]]; then
-    kubectl create secret generic regcred \
-        --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-        --type=kubernetes.io/dockerconfigjson \
-        --namespace=$NAMESPACE \
-        --dry-run=client -o yaml | kubectl apply -f -
+    for NAMESPACE in ${NAMESPACES_LIST//,/ }; do
+        kubectl create namespace $NAMESPACE \
+            --dry-run=client -o yaml | kubectl apply -f -
+            
+        kubectl create secret generic $(echo $NAMESPACE | tr '[:upper:]' '[:lower:]')-regcred \
+            --from-file=.dockerconfigjson=$HOME/.docker/config.json \
+            --type=kubernetes.io/dockerconfigjson \
+            -n $NAMESPACE \
+            --dry-run=client -o yaml | kubectl apply -f -
+    done
 else
     echo "Docker config file not found at $HOME/.docker/config.json. Skipping registry secret creation."
 fi
