@@ -27,4 +27,4 @@ jobs:
 
             - name: Execute deploy
               run: |
-                  ./deploy.sh
+                  NAMESPACES_LIST=${{ vars.NAMESPACES_LIST }} ./deploy.sh
