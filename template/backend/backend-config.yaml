@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-    namespace: ${KUBE_NAMESPACE}
-    name: backend-config
-data:
-    backend_url: backend-service
-    backend_port: "8070"
-    backend_db_name: ${KUBE_DATABASE_NAME}

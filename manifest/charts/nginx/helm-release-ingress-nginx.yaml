@@ -1,0 +1,44 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  interval: 10m
+  releaseName: ingress-nginx
+  chart:
+    spec:
+      chart: ingress-nginx
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: flux-system
+  install:
+    createNamespace: true
+  values:
+    controller:
+      resources:
+        limits:
+          cpu: 250m
+          memory: 256Mi
+        requests:
+          cpu: 125m
+          memory: 128Mi
+      # Enable metrics for monitoring
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: false # Set to true if you have Prometheus
+      # Security context
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        fsGroup: 65534
+    defaultBackend:
+      resources:
+        limits:
+          cpu: 25m
+          memory: 32Mi
+        requests:
+          cpu: 12m
+          memory: 16Mi

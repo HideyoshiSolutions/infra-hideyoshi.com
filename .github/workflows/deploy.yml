@@ -16,15 +16,12 @@ jobs:
         timeout-minutes: 30
 
         steps:
-            - uses: actions/checkout@v4
-            - name: Writing Env File
-              run: |
-                  echo "${{ secrets.ENV_FILE }}" | base64 -d > .env
             - name: Set Kubernetes Context
               uses: azure/k8s-set-context@v1
               with:
                   method: kubeconfig
                   kubeconfig: ${{ secrets.KUBECONFIG }}
+
             - name: Execute deploy
               run: |
-                  ./deploy.sh -f .env
+                  ./deploy.sh
