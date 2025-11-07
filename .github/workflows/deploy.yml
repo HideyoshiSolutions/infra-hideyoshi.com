@@ -2,11 +2,11 @@ name: remote ssh command
 
 on:
     repository_dispatch:
-        types: [deploy-prod]
+        types: 
+            - deploy
     push:
         branches:
             - main
-            - staging
 
 jobs:
     deploy:
@@ -14,17 +14,20 @@ jobs:
         environment: ${{ github.ref_name == 'main' && 'prod' || 'staging' }}
         runs-on: ubuntu-latest
         timeout-minutes: 30
+        env:
+            NAMESPACE: ${{ vars.NAMESPACE }}
 
         steps:
-            - uses: actions/checkout@v4
-            - name: Writing Env File
-              run: |
-                  echo "${{ secrets.ENV_FILE }}" | base64 -d > .env
             - name: Set Kubernetes Context
               uses: azure/k8s-set-context@v1
               with:
                   method: kubeconfig
-                  kubeconfig: ${{ secrets.KUBECONFIG }}
+                  kubeconfig: ${{ secrets.PORTFOLIO_KUBECONFIG }}
+
+            - name: Configures GHCR credentials
+              run: |
+                  echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             - name: Execute deploy
               run: |
-                  ./deploy.sh -f .env
+                  ./deploy.sh
