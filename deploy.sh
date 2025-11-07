@@ -32,6 +32,9 @@ for NAMESPACE in ${NAMESPACES_LIST//,/ }; do
     kubectl create namespace $NAMESPACE \
         --dry-run=client -o yaml | kubectl apply -f -
 
+    kubectl delete secret ghcr-secret \
+        --namespace=$NAMESPACE \
+        --ignore-not-found=true
     kubectl create secret docker-registry ghcr-secret \
         --docker-server=ghcr.io \
         --docker-username=$GHCR_USERNAME \
