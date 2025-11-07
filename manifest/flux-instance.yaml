@@ -1,0 +1,118 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: "1h"
+    fluxcd.controlplane.io/reconcileTimeout: "5m"
+spec:
+  distribution:
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+    artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+    - image-reflector-controller
+    - image-automation-controller
+  cluster:
+    type: kubernetes
+    size: medium
+    multitenant: false
+    networkPolicy: true
+    domain: "cluster.local"
+  kustomize:
+    patches:
+      - target:
+          kind: Deployment
+        patch: |
+          - op: replace
+            path: /spec/template/spec/nodeSelector
+            value:
+              kubernetes.io/os: linux
+          - op: add
+            path: /spec/template/spec/tolerations
+            value:
+              - key: "CriticalAddonsOnly"
+                operator: "Exists"
+      - target:
+          kind: Deployment
+          name: source-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/resources
+            value:
+              limits:
+                cpu: 250m
+                memory: 256Mi
+              requests:
+                cpu: 25m
+                memory: 32Mi
+      - target:
+          kind: Deployment
+          name: kustomize-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/resources
+            value:
+              limits:
+                cpu: 250m
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 64Mi
+      - target:
+          kind: Deployment
+          name: helm-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/resources
+            value:
+              limits:
+                cpu: 250m
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 64Mi
+      - target:
+          kind: Deployment
+          name: notification-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/resources
+            value:
+              limits:
+                cpu: 50m
+                memory: 64Mi
+              requests:
+                cpu: 25m
+                memory: 32Mi
+      - target:
+          kind: Deployment
+          name: image-reflector-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/resources
+            value:
+              limits:
+                cpu: 50m
+                memory: 64Mi
+              requests:
+                cpu: 25m
+                memory: 32Mi
+      - target:
+          kind: Deployment
+          name: image-automation-controller
+        patch: |
+          - op: add
+            path: /spec/template/spec/containers/0/resources
+            value:
+              limits:
+                cpu: 50m
+                memory: 64Mi
+              requests:
+                cpu: 25m
+                memory: 32Mi
