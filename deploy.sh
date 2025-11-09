@@ -7,7 +7,7 @@ helm upgrade --install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/
     --create-namespace
 
 
-kubectl apply -f manifest/flux-instance.yml
+kubectl apply -f manifest/flux-instance.yaml
 
 
 ###  Additional components ###
