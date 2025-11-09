@@ -14,6 +14,8 @@ jobs:
         env:
             GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
             GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+            KUBE_CERT_SERVER: ${{ secrets.KUBE_CERT_SERVER }}
+            KUBE_DOMAIN_EMAIL: ${{ secrets.KUBE_DOMAIN_EMAIL }}
 
         steps:
             - name: Checkout Repository
