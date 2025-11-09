@@ -27,6 +27,12 @@ kubectl create namespace cert-manager \
 kubectl apply -f manifest/charts/cert-manager
 
 
+# deploy cloudnative-pg
+kubectl create namespace cnpg-system \
+    --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -f manifest/charts/cloudnative-pg
+
+
 ### set application namespaces and configures docker registry secret ###
 for NAMESPACE in ${NAMESPACES_LIST//,/ }; do
     kubectl create namespace $NAMESPACE \
